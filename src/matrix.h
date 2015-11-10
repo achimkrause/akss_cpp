@@ -1,6 +1,7 @@
 #include <exception>
 #include <functional>
 #include <iostream>
+#include <string>
 #include <vector>
 
 #include <gmpxx.h>
@@ -13,8 +14,6 @@ class MatrixExpression
   {
   }
 
-  template <template <typename> class E2>
-  MatrixExpression(const MatrixExpression<T, E2>& expr);
 
   inline std::size_t height() const
   {
@@ -35,15 +34,12 @@ class MatrixExpression
   {
     return static_cast<E<T>&> (*this)(i, j);
   }
-
 };
 
 template <typename T>
 class IdentityMatrix : public MatrixExpression<T, IdentityMatrix>
 {
  public:
-  typedef T value_type;
-
   IdentityMatrix(const std::size_t n);
 
   std::size_t height() const;
@@ -56,27 +52,34 @@ class IdentityMatrix : public MatrixExpression<T, IdentityMatrix>
 };
 
 template <typename T>
+class MatrixSlice;
+
+template <typename T>
 class Matrix : public MatrixExpression<T, Matrix>
 {
  public:
-  typedef T value_type;
-
   Matrix(const std::size_t height, const std::size_t width);
   Matrix(const Matrix<T>& other);
 
   template <template <typename> class E>
   Matrix(const MatrixExpression<T, E>& expr);
 
-  std::size_t height() const
+  inline std::size_t height() const
   {
     return height_;
   }
-  std::size_t width() const
+  inline std::size_t width() const
   {
     return width_;
   }
+
   T operator()(const std::size_t i, const std::size_t j) const;
   T& operator()(const std::size_t i, const std::size_t j);
+
+  MatrixSlice<T> operator()(const std::size_t i,
+                                              const std::size_t j,
+                                              const std::size_t height,
+                                              const std::size_t width);
 
   static IdentityMatrix<T> identity(const std::size_t n);
 
@@ -111,6 +114,40 @@ class Matrix : public MatrixExpression<T, Matrix>
 };
 
 template <typename T>
+class MatrixSlice : public MatrixExpression<T, MatrixSlice>
+{
+ public:
+  MatrixSlice(Matrix<T>& mat, const std::size_t i, const std::size_t j,
+              const std::size_t height, const std::size_t width);
+
+  MatrixSlice<T>& operator=(const MatrixSlice<T>& other);
+
+  template <template <typename> class E>
+  MatrixSlice<T>& operator=(const MatrixExpression<T, E>& expr);
+
+  inline std::size_t height() const
+  {
+    return height_;
+  }
+
+  inline std::size_t width() const
+  {
+    return width_;
+  }
+
+  T operator()(const std::size_t i, const std::size_t j) const;
+  T& operator()(const std::size_t i, const std::size_t j);
+
+ private:
+  Matrix<T>& mat_;
+  const std::size_t i_;
+  const std::size_t j_;
+  const std::size_t height_;
+  const std::size_t width_;
+};
+
+
+template <typename T>
 IdentityMatrix<T>::IdentityMatrix(const std::size_t n)
     : n_(n)
 {
@@ -129,8 +166,7 @@ std::size_t IdentityMatrix<T>::width() const
 }
 
 template <typename T>
-T IdentityMatrix<T>::operator()(const std::size_t i,
-                                       const std::size_t j) const
+T IdentityMatrix<T>::operator()(const std::size_t i, const std::size_t j) const
 {
   return i == j ? 1 : 0;
 }
@@ -169,16 +205,12 @@ Matrix<T>::Matrix(const Matrix<T>& other)
 template <typename T>
 template <template <typename> class E>
 Matrix<T>::Matrix(const MatrixExpression<T, E>& expr)
-: height_(expr.height()), width_(expr.width())
+    : height_(expr.height()), width_(expr.width())
 {
-  std::cout << "Matrix(const MatrixExpression<T, E>& expr)\n";
-
   entries_.reserve(height_ * width_);
 
-  for (std::size_t i = 0; i < height_; ++i)
-  {
-    for (std::size_t j = 0; j < width_; ++j)
-    {
+  for (std::size_t i = 0; i < height_; ++i) {
+    for (std::size_t j = 0; j < width_; ++j) {
       entries_.emplace_back(expr(i, j));
     }
   }
@@ -194,6 +226,47 @@ template <typename T>
 T& Matrix<T>::operator()(const std::size_t i, const std::size_t j)
 {
   return entries_[i * width_ + j];
+}
+
+template <typename T>
+MatrixSlice<T> Matrix<T>::operator()(const std::size_t i,
+                                                       const std::size_t j,
+                                                       const std::size_t height,
+                                                       const std::size_t width)
+{
+  return MatrixSlice<T>(*this, i, j, height, width);
+}
+
+template <typename T>
+MatrixSlice<T>& MatrixSlice<T>::operator=(const MatrixSlice<T>& other) {
+  if (&mat_ == &other.mat_) {
+    if (i_ < other.i_ + other.height_ && i_ + height_ > other.i_ && j_ <
+        other.j_ + other.width_ && j_ + width_ > other.j_)
+      throw std::logic_error("Matrix slices overlap");
+  }
+
+  return (*this = static_cast<const MatrixExpression<T, ::MatrixSlice>&>(other));
+}
+
+template <typename T>
+template <template <typename> class E>
+MatrixSlice<T>& MatrixSlice<T>::operator=(
+    const MatrixExpression<T, E>& expr)
+{
+  if (height() != expr.height())
+    throw std::logic_error("Dimension mismatch: " + std::to_string(height()) +
+                           " != " + std::to_string(expr.height()));
+  if (width() != expr.width())
+    throw std::logic_error("Dimension mismatch:  " + std::to_string(width()) +
+                           " != " + std::to_string(expr.width()));
+
+  for (std::size_t i = 0; i < height(); ++i) {
+    for (std::size_t j = 0; j < width(); ++j) {
+      (*this)(i, j) = expr(i, j);
+    }
+  }
+
+  return *this;
 }
 
 template <typename T>
@@ -257,9 +330,31 @@ void Matrix<T>::col_swap(const std::size_t j1, const std::size_t j2)
 }
 
 template <typename T>
+MatrixSlice<T>::MatrixSlice(Matrix<T>& mat, const std::size_t i,
+                            const std::size_t j, const std::size_t height,
+                            const std::size_t width)
+    : mat_(mat), i_(i), j_(j), height_(height), width_(width)
+{
+}
+
+template <typename T>
+T MatrixSlice<T>::operator()(const std::size_t i, const std::size_t j) const
+{
+  return mat_(i_ + i, j_ + j);
+}
+
+template <typename T>
+T& MatrixSlice<T>::operator()(const std::size_t i, const std::size_t j)
+{
+  return mat_(i_ + i, j_ + j);
+}
+
+template <typename T>
 Matrix<T> operator*(const Matrix<T>& g, const Matrix<T>& f)
 {
-  if (g.width() != f.height()) throw std::logic_error("Dimension mismatch");
+  if (g.width() != f.height())
+    throw std::logic_error("Dimension mismatch:" + std::to_string(g.width()) +
+                           " != " + std::to_string(f.height()));
 
   Matrix<T> gf(g.height(), f.width());
   for (std::size_t i = 0; i < g.height(); ++i) {
