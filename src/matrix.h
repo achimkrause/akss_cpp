@@ -9,25 +9,37 @@ template <typename T, template <typename> class E>
 class MatrixExpression
 {
  public:
-  std::size_t height() const
+  MatrixExpression()
+  {
+  }
+
+  template <template <typename> class E2>
+  MatrixExpression(const MatrixExpression<T, E2>& expr);
+
+  inline std::size_t height() const
   {
     return static_cast<const E<T>&>(*this).height();
   }
 
-  std::size_t width() const { return static_cast<const E<T>&>(*this).width(); }
-  const T& operator()(const std::size_t i, const std::size_t j) const
+  inline std::size_t width() const
+  {
+    return static_cast<const E<T>&>(*this).width();
+  }
+
+  inline T operator()(const std::size_t i, const std::size_t j) const
   {
     return static_cast<const E<T>&> (*this)(i, j);
   }
 
-  T& operator()(const std::size_t i, const std::size_t j)
+  inline T& operator()(const std::size_t i, const std::size_t j)
   {
     return static_cast<E<T>&> (*this)(i, j);
   }
+
 };
 
 template <typename T>
-class IdentityMatrix : MatrixExpression<T, IdentityMatrix>
+class IdentityMatrix : public MatrixExpression<T, IdentityMatrix>
 {
  public:
   typedef T value_type;
@@ -37,23 +49,33 @@ class IdentityMatrix : MatrixExpression<T, IdentityMatrix>
   std::size_t height() const;
   std::size_t width() const;
 
-  const T& operator()(const std::size_t i, const std::size_t j) const;
+  T operator()(const std::size_t i, const std::size_t j) const;
 
  private:
   std::size_t n_;
 };
 
 template <typename T>
-class Matrix : MatrixExpression<T, Matrix>
+class Matrix : public MatrixExpression<T, Matrix>
 {
  public:
   typedef T value_type;
 
   Matrix(const std::size_t height, const std::size_t width);
+  Matrix(const Matrix<T>& other);
 
-  std::size_t height() const { return height_; }
-  std::size_t width() const { return width_; }
-  const T& operator()(const std::size_t i, const std::size_t j) const;
+  template <template <typename> class E>
+  Matrix(const MatrixExpression<T, E>& expr);
+
+  std::size_t height() const
+  {
+    return height_;
+  }
+  std::size_t width() const
+  {
+    return width_;
+  }
+  T operator()(const std::size_t i, const std::size_t j) const;
   T& operator()(const std::size_t i, const std::size_t j);
 
   static IdentityMatrix<T> identity(const std::size_t n);
@@ -107,7 +129,7 @@ std::size_t IdentityMatrix<T>::width() const
 }
 
 template <typename T>
-const T& IdentityMatrix<T>::operator()(const std::size_t i,
+T IdentityMatrix<T>::operator()(const std::size_t i,
                                        const std::size_t j) const
 {
   return i == j ? 1 : 0;
@@ -139,7 +161,31 @@ Matrix<T>::Matrix(const std::size_t height, const std::size_t width)
 }
 
 template <typename T>
-const T& Matrix<T>::operator()(const std::size_t i, const std::size_t j) const
+Matrix<T>::Matrix(const Matrix<T>& other)
+    : height_(other.height_), width_(other.width_), entries_(other.entries_)
+{
+}
+
+template <typename T>
+template <template <typename> class E>
+Matrix<T>::Matrix(const MatrixExpression<T, E>& expr)
+: height_(expr.height()), width_(expr.width())
+{
+  std::cout << "Matrix(const MatrixExpression<T, E>& expr)\n";
+
+  entries_.reserve(height_ * width_);
+
+  for (std::size_t i = 0; i < height_; ++i)
+  {
+    for (std::size_t j = 0; j < width_; ++j)
+    {
+      entries_.emplace_back(expr(i, j));
+    }
+  }
+}
+
+template <typename T>
+T Matrix<T>::operator()(const std::size_t i, const std::size_t j) const
 {
   return entries_[i * width_ + j];
 }
