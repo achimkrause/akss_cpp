@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 
-#include "matrix.h"
+#include "../src/matrix.h"
 
 TEST(Matrix, Composition)
 {

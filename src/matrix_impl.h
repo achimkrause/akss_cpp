@@ -155,7 +155,7 @@ MatrixSlice<T>& MatrixSlice<T>::operator=(const MatrixSlice<T>& other)
   if (&mat_ == &other.mat_) {
     if (i_ < other.i_ + other.height_ && i_ + height_ > other.i_ &&
         j_ < other.j_ + other.width_ && j_ + width_ > other.j_)
-      throw std::logic_error("Matrix slices overlap");
+      throw std::logic_error("MatrixSlice::operator=: Matrix slices overlap");
   }
 
   return (*this =
@@ -167,11 +167,13 @@ template <template <typename> class E>
 MatrixSlice<T>& MatrixSlice<T>::operator=(const MatrixExpression<T, E>& expr)
 {
   if (height() != expr.height())
-    throw std::logic_error("Dimension mismatch: " + std::to_string(height()) +
-                           " != " + std::to_string(expr.height()));
+    throw std::logic_error("MatrixSlice::operator=: Dimension mismatch: " +
+                           std::to_string(height()) + " != " +
+                           std::to_string(expr.height()));
   if (width() != expr.width())
-    throw std::logic_error("Dimension mismatch:  " + std::to_string(width()) +
-                           " != " + std::to_string(expr.width()));
+    throw std::logic_error("MatrixSlice::operator=: Dimension mismatch:  " +
+                           std::to_string(width()) + " != " +
+                           std::to_string(expr.width()));
 
   for (std::size_t i = 0; i < height(); ++i) {
     for (std::size_t j = 0; j < width(); ++j) {
