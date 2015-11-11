@@ -6,32 +6,13 @@
 
 TEST(Matrix, Composition)
 {
-  MatrixQ A(2, 3);
+  MatrixQ A = {{1, 0, 1}, {0, 1, 1}};
 
-  A(0, 0) = 1;
-  A(0, 1) = 0;
-  A(0, 2) = 1;
-  A(1, 0) = 0;
-  A(1, 1) = 1;
-  A(1, 2) = 1;
-
-  MatrixQ B(3, 2);
-
-  B(0, 0) = 1;
-  B(0, 1) = 0;
-  B(1, 0) = 0;
-  B(1, 1) = 1;
-  B(2, 0) = 1;
-  B(2, 1) = 1;
+  MatrixQ B = {{1, 0}, {0, 1}, {1, 1}};
 
   MatrixQ C = A * B;
 
-  MatrixQ C_ref(2, 2);
-
-  C_ref(0, 0) = 2;
-  C_ref(0, 1) = 1;
-  C_ref(1, 0) = 1;
-  C_ref(1, 1) = 2;
+  MatrixQ C_ref = {{2, 1}, {1, 2}};
 
   EXPECT_EQ(C_ref, C);
 }

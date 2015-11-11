@@ -29,6 +29,19 @@ Matrix<T>::Matrix(const std::size_t height, const std::size_t width)
 }
 
 template <typename T>
+Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T>> lst)
+    : height_(lst.size()), width_(height_ ? lst.begin()->size() : 0)
+{
+  entries_.reserve(height_ * width_);
+
+  for (const auto& row : lst) {
+    for (const T& value : row) {
+      entries_.push_back(value);
+    }
+  }
+}
+
+template <typename T>
 Matrix<T>::Matrix(const Matrix<T>& other)
     : height_(other.height_), width_(other.width_), entries_(other.entries_)
 {
