@@ -78,6 +78,49 @@ TEST(Matrix, ColSwap)
   MatrixQ C = A;
   ASSERT_EQ(C, A.col_swap(0, 0));
 }
+
+TEST(Matrix, BasisVectorsAdd)
+{
+  MatrixQ A = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+  MatrixQ B(A);
+
+  MatrixQList to_X = {A};
+  MatrixQList from_X = {B};
+
+  basis_vectors_add(to_X, from_X, 0, 2, 2_mpq);
+
+  ASSERT_EQ(MatrixQ({{-13, -14, -15}, {4, 5, 6}, {7, 8, 9}}), A);
+  ASSERT_EQ(MatrixQ({{1, 2, 5}, {4, 5, 14}, {7, 8, 23}}), B);
+}
+
+TEST(Matrix, BasisVectorsMul)
+{
+  MatrixQ A = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+  MatrixQ B(A);
+
+  MatrixQList to_X = {A};
+  MatrixQList from_X = {B};
+
+  basis_vectors_mul(to_X, from_X, 1, 2_mpq);
+
+  ASSERT_EQ(MatrixQ({{1, 2, 3}, {2, 5 / 2_mpq, 3}, {7, 8, 9}}), A);
+  ASSERT_EQ(MatrixQ({{1, 4, 3}, {4, 10, 6}, {7, 16, 9}}), B);
+}
+
+TEST(Matrix, BasisVectorsSwap)
+{
+  MatrixQ A = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+  MatrixQ B(A);
+
+  MatrixQList to_X = {A};
+  MatrixQList from_X = {B};
+
+  basis_vectors_swap(to_X, from_X, 1, 2);
+
+  ASSERT_EQ(MatrixQ({{1, 2, 3}, {7, 8, 9}, {4, 5, 6}}), A);
+  ASSERT_EQ(MatrixQ({{1, 3, 2}, {4, 6, 5}, {7, 9, 8}}), B);
+}
+
 TEST(Matrix, Composition)
 {
   MatrixQ A = {{1, 0, 1}, {0, 1, 1}};

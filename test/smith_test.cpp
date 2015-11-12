@@ -32,3 +32,17 @@ TEST(SmithReduceP, Diagonal)
 
   ASSERT_EQ(MatrixQ::identity(3), f);
 }
+
+TEST(SmithReduceP, AntiDiagonal)
+{
+  MatrixQ f = {{0, 0, 1}, {0, 1, 0}, {1, 0, 0}};
+
+  auto to_X = MatrixQList();
+  auto from_X = MatrixQList();
+  auto to_Y = MatrixQList();
+  auto from_Y = MatrixQList();
+
+  smith_reduce_p(2, f, to_X, from_X, to_Y, from_Y);
+
+  ASSERT_EQ(MatrixQ({{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}), f);
+}
