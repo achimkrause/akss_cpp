@@ -26,3 +26,9 @@ int p_valuation(const std::size_t p, const mpq_class& x)
   else
     return -p_valuation_int(p, x.get_den());
 }
+
+mpz_class p_pow(const std::size_t p, const std::size_t exp) {
+  mpz_class pow;
+  mpz_ui_pow_ui(pow.get_mpz_t(), p, exp);
+  return pow;
+}

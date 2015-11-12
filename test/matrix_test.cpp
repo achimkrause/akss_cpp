@@ -38,10 +38,46 @@ TEST(Matrix, RowAdd)
 {
   MatrixQ A = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
   MatrixQ B = {{1, 2, 3}, {4, 5, 6}, {9, 12, 15}};
-  A.row_add(0, 2, 2_mpq);
-  ASSERT_EQ(B, A);
+  ASSERT_EQ(B, A.row_add(0, 2, 2_mpq));
+}
+TEST(Matrix, RowMul)
+{
+  MatrixQ A = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+  MatrixQ B = {{1_mpq / 2, 1_mpq, 3_mpq / 2}, {4, 5, 6}, {7, 8, 9}};
+  ASSERT_EQ(B, A.row_mul(0, 1 / 2_mpq));
 }
 
+TEST(Matrix, RowSwap)
+{
+  MatrixQ A = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+  MatrixQ B = {{1, 2, 3}, {7, 8, 9}, {4, 5, 6}};
+  ASSERT_EQ(B, A.row_swap(1, 2));
+
+  MatrixQ C = A;
+  ASSERT_EQ(C, A.row_swap(2, 2));
+}
+TEST(Matrix, ColAdd)
+{
+  MatrixQ A = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+  MatrixQ B = {{-1, 2, 3}, {-1, 5, 6}, {-1, 8, 9}};
+  ASSERT_EQ(B, A.col_add(1, 0, -1_mpq));
+}
+TEST(Matrix, ColMul)
+{
+  MatrixQ A = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+  MatrixQ B = {{1_mpq / 2, 2, 3}, {2, 5, 6}, {7 / 2_mpq, 8, 9}};
+  ASSERT_EQ(B, A.col_mul(0, 1 / 2_mpq));
+}
+
+TEST(Matrix, ColSwap)
+{
+  MatrixQ A = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+  MatrixQ B = {{2, 1, 3}, {5, 4, 6}, {8, 7, 9}};
+  ASSERT_EQ(B, A.col_swap(0, 1));
+
+  MatrixQ C = A;
+  ASSERT_EQ(C, A.col_swap(0, 0));
+}
 TEST(Matrix, Composition)
 {
   MatrixQ A = {{1, 0, 1}, {0, 1, 1}};

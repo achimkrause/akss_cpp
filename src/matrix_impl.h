@@ -253,11 +253,11 @@ void basis_vectors_add(MatrixRefList<T>& to_X, MatrixRefList<T>& from_X,
                        const std::size_t i1, const std::size_t i2,
                        const T& lambda)
 {
-  for (MatrixRef<T> f : to_X) {
+  for (Matrix<T> f : to_X) {
     f.row_add(i2, i1, -lambda);
   }
 
-  for (MatrixRef<T> f : from_X) {
+  for (Matrix<T> f : from_X) {
     f.col_add(i1, i2, lambda);
   }
 }
@@ -266,11 +266,11 @@ template <typename T>
 void basis_vectors_mul(MatrixRefList<T>& to_X, MatrixRefList<T>& from_X,
                        const std::size_t i, const T& lambda)
 {
-  for (MatrixRef<T> f : to_X) {
+  for (Matrix<T> f : to_X) {
     f.row_mul(i, 1 / lambda);
   }
 
-  for (MatrixRef<T> f : from_X) {
+  for (Matrix<T> f : from_X) {
     f.col_mul(i, lambda);
   }
 }
@@ -279,11 +279,11 @@ template <typename T>
 void basis_vectors_swap(MatrixRefList<T>& to_X, MatrixRefList<T>& from_X,
                         const std::size_t i1, const std::size_t i2)
 {
-  for (MatrixRef<T> f : to_X) {
+  for (Matrix<T> f : to_X) {
     f.row_swap(i2, i1);
   }
 
-  for (MatrixRef<T> f : from_X) {
+  for (Matrix<T> f : from_X) {
     f.col_swap(i1, i2);
   }
 }
