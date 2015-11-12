@@ -3,17 +3,9 @@
 #include "abelian_group.h"
 #include "matrix.h"
 
-template <typename T>
-struct Morphism {
-  AbelianGroup domain;
-  Matrix<T> map;
-  AbelianGroup codomain;
-};
+AbelianGroup compute_cokernel(const std::size_t p, const MatrixQ& f,
+                              const AbelianGroup& Y,
+                              const MatrixQRefList& to_Y_ref,
+                              const MatrixQRefList& from_Y_ref,
+                              MatrixQList& to_C, MatrixQList& from_C);
 
-template <typename T>
-AbelianGroup compute_cokernel(const std::size_t p, const Morphism& f,
-                              const MatrixRefList<T>& to_Y,
-                              const MatrixRefList<T>& from_Y,
-                              MatrixRefList<T>& to_C, MatrixRefList<T>& from_C);
-
-#include "morphisms_impl.h"

@@ -16,7 +16,7 @@ TEST(SmithReduceP, Empty)
 
   smith_reduce_p(2, f, to_X, from_X, to_Y, from_Y);
 
-  ASSERT_EQ(MatrixQ({}), f);
+  EXPECT_EQ(MatrixQ({}), f);
 }
 
 TEST(SmithReduceP, Diagonal)
@@ -30,7 +30,7 @@ TEST(SmithReduceP, Diagonal)
 
   smith_reduce_p(2, f, to_X, from_X, to_Y, from_Y);
 
-  ASSERT_EQ(MatrixQ::identity(3), f);
+  EXPECT_EQ(MatrixQ::identity(3), f);
 }
 
 TEST(SmithReduceP, AntiDiagonal)
@@ -44,5 +44,5 @@ TEST(SmithReduceP, AntiDiagonal)
 
   smith_reduce_p(2, f, to_X, from_X, to_Y, from_Y);
 
-  ASSERT_EQ(MatrixQ({{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}), f);
+  EXPECT_EQ(MatrixQ({{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}), f);
 }

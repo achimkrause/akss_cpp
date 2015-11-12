@@ -287,3 +287,29 @@ void basis_vectors_swap(MatrixRefList<T>& to_X, MatrixRefList<T>& from_X,
     f.col_swap(i1, i2);
   }
 }
+
+template <typename T>
+MatrixList<T> deref(const MatrixRefList<T>& ref_list)
+{
+  MatrixList<T> list;
+  list.reserve(ref_list.size());
+
+  for (Matrix<T> mat : ref_list) {
+    list.push_back(mat);
+  }
+
+  return list;
+}
+
+template <typename T>
+MatrixRefList<T> ref(MatrixList<T>& list)
+{
+  MatrixRefList<T> ref_list;
+  ref_list.reserve(list.size());
+
+  for (Matrix<T>& mat : list) {
+    ref_list.emplace_back(mat);
+  }
+
+  return ref_list;
+}

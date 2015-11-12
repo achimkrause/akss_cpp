@@ -13,10 +13,6 @@ template <typename T, template <typename> class E>
 class MatrixExpression
 {
  public:
-  MatrixExpression()
-  {
-  }
-
   inline std::size_t height() const
   {
     return static_cast<const E<T>&>(*this).height();
@@ -170,5 +166,11 @@ void basis_vectors_swap(MatrixRefList<T>& to_X, MatrixRefList<T>& from_X,
 using MatrixQ = Matrix<mpq_class>;
 using MatrixQList = MatrixList<mpq_class>;
 using MatrixQRefList = MatrixRefList<mpq_class>;
+
+template <typename T>
+MatrixList<T> deref(const MatrixRefList<T>& ref_list);
+template <typename T>
+MatrixRefList<T> ref(MatrixList<T>& list);
+
 
 #include "matrix_impl.h"

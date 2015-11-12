@@ -10,5 +10,5 @@ TEST(AbelianGroup, TorsionMatrix)
   X(1) = 1;
   X(2) = 3;
 
-  ASSERT_EQ(MatrixQ({{9, 0, 0}, {0, 3, 0}, {0, 0, 27}}), X.torsion_matrix(3));
+  EXPECT_EQ(MatrixQ({{9, 0, 0}, {0, 3, 0}, {0, 0, 27}}), X.torsion_matrix(3));
 }
