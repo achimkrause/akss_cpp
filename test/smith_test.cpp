@@ -9,10 +9,10 @@ TEST(SmithReduceP, Empty)
 {
   MatrixQ f = {};
 
-  auto to_X = MatrixQList();
-  auto from_X = MatrixQList();
-  auto to_Y = MatrixQList();
-  auto from_Y = MatrixQList();
+  auto to_X = MatrixQRefList();
+  auto from_X = MatrixQRefList();
+  auto to_Y = MatrixQRefList();
+  auto from_Y = MatrixQRefList();
 
   smith_reduce_p(2, f, to_X, from_X, to_Y, from_Y);
 
@@ -23,10 +23,10 @@ TEST(SmithReduceP, Diagonal)
 {
   MatrixQ f = MatrixQ::identity(3);
 
-  auto to_X = MatrixQList();
-  auto from_X = MatrixQList();
-  auto to_Y = MatrixQList();
-  auto from_Y = MatrixQList();
+  auto to_X = MatrixQRefList();
+  auto from_X = MatrixQRefList();
+  auto to_Y = MatrixQRefList();
+  auto from_Y = MatrixQRefList();
 
   smith_reduce_p(2, f, to_X, from_X, to_Y, from_Y);
 
@@ -37,10 +37,10 @@ TEST(SmithReduceP, AntiDiagonal)
 {
   MatrixQ f = {{0, 0, 1}, {0, 1, 0}, {1, 0, 0}};
 
-  auto to_X = MatrixQList();
-  auto from_X = MatrixQList();
-  auto to_Y = MatrixQList();
-  auto from_Y = MatrixQList();
+  auto to_X = MatrixQRefList();
+  auto from_X = MatrixQRefList();
+  auto to_Y = MatrixQRefList();
+  auto from_Y = MatrixQRefList();
 
   smith_reduce_p(2, f, to_X, from_X, to_Y, from_Y);
 

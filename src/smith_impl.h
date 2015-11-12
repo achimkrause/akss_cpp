@@ -44,11 +44,8 @@ void smith_reduce_p(const std::size_t p, Matrix<T>& f, MatrixRefList<T>& to_X,
       basis_vectors_add(to_X, from_X, j_min, j, lambda);
     }
 
-    std::cout << diagonal_block_size << ": " << to_Y[0].get();
     basis_vectors_swap(to_Y, from_Y, i_min, diagonal_block_size);
     basis_vectors_swap(to_X, from_X, j_min, diagonal_block_size);
-    std::cout << diagonal_block_size << " (post-swap): " << j_min << " " << 
-      diagonal_block_size << from_X[0].get();
 
     lambda = p_pow(p, min_valuation) / min_value;
     basis_vectors_mul(to_X, from_X, diagonal_block_size, lambda);

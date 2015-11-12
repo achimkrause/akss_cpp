@@ -84,8 +84,8 @@ TEST(Matrix, BasisVectorsAdd)
   MatrixQ A = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
   MatrixQ B(A);
 
-  MatrixQList to_X = {A};
-  MatrixQList from_X = {B};
+  MatrixQRefList to_X = {A};
+  MatrixQRefList from_X = {B};
 
   basis_vectors_add(to_X, from_X, 0, 2, 2_mpq);
 
@@ -98,8 +98,8 @@ TEST(Matrix, BasisVectorsMul)
   MatrixQ A = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
   MatrixQ B(A);
 
-  MatrixQList to_X = {A};
-  MatrixQList from_X = {B};
+  MatrixQRefList to_X = {A};
+  MatrixQRefList from_X = {B};
 
   basis_vectors_mul(to_X, from_X, 1, 2_mpq);
 
@@ -112,8 +112,8 @@ TEST(Matrix, BasisVectorsSwap)
   MatrixQ A = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
   MatrixQ B(A);
 
-  MatrixQList to_X = {A};
-  MatrixQList from_X = {B};
+  MatrixQRefList to_X = {A};
+  MatrixQRefList from_X = {B};
 
   basis_vectors_swap(to_X, from_X, 1, 2);
 

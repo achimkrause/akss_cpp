@@ -150,6 +150,8 @@ class MatrixSlice : public MatrixExpression<T, MatrixSlice>
 };
 
 template <typename T>
+using MatrixList = std::vector<Matrix<T>>;
+template <typename T>
 using MatrixRef = std::reference_wrapper<Matrix<T>>;
 template <typename T>
 using MatrixRefList = std::vector<MatrixRef<T>>;
@@ -166,6 +168,7 @@ void basis_vectors_swap(MatrixRefList<T>& to_X, MatrixRefList<T>& from_X,
                         const std::size_t i1, const std::size_t i2);
 
 using MatrixQ = Matrix<mpq_class>;
-using MatrixQList = MatrixRefList<mpq_class>;
+using MatrixQList = MatrixList<mpq_class>;
+using MatrixQRefList = MatrixRefList<mpq_class>;
 
 #include "matrix_impl.h"
