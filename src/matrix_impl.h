@@ -88,57 +88,69 @@ IdentityMatrix<T> Matrix<T>::identity(const std::size_t n)
 }
 
 template <typename T>
-void Matrix<T>::row_add(const std::size_t i1, const std::size_t i2,
-                        const T& lambda)
+Matrix<T>& Matrix<T>::row_add(const std::size_t i1, const std::size_t i2,
+                              const T& lambda)
 {
   for (std::size_t j = 0; j < width_; ++j) {
     entries_[i2 * width_ + j] += lambda * entries_[i1 * width_ + j];
   }
+  return *this;
 }
 
 template <typename T>
-void Matrix<T>::row_mul(const std::size_t i, const T& lambda)
+Matrix<T>& Matrix<T>::row_mul(const std::size_t i, const T& lambda)
 {
   for (std::size_t j = 0; j < width_; ++j) {
     entries_[i * width_ + j] *= lambda;
   }
+  return *this;
 }
 
 template <typename T>
-void Matrix<T>::row_swap(const std::size_t i1, const std::size_t i2)
+Matrix<T>& Matrix<T>::row_swap(const std::size_t i1, const std::size_t i2)
 {
   using std::swap;
 
   for (std::size_t j = 0; j < width_; ++j) {
     swap(entries_[i1 * width_ + j], entries_[i2 * width_ + j]);
   }
+  return *this;
 }
 
 template <typename T>
-void Matrix<T>::col_add(const std::size_t j1, const std::size_t j2,
-                        const T& lambda)
+Matrix<T>& Matrix<T>::col_add(const std::size_t j1, const std::size_t j2,
+                              const T& lambda)
 {
   for (std::size_t i = 0; i < height_; ++i) {
     entries_[i * width_ + j2] += lambda * entries_[i * width_ + j1];
   }
+  return *this;
 }
 
 template <typename T>
-void Matrix<T>::col_mul(const std::size_t j, const T& lambda)
+Matrix<T>& Matrix<T>::col_mul(const std::size_t j, const T& lambda)
 {
   for (std::size_t i = 0; i < height_; ++i) {
     entries_[i * width_ + j] *= lambda;
   }
+  return *this;
 }
 
 template <typename T>
-void Matrix<T>::col_swap(const std::size_t j1, const std::size_t j2)
+Matrix<T>& Matrix<T>::col_swap(const std::size_t j1, const std::size_t j2)
 {
   using std::swap;
 
   for (std::size_t i = 0; i < height_; ++i) {
     swap(entries_[i * width_ + j1], entries_[i * width_ + j2]);
   }
+  return *this;
+}
+
+template <typename T>
+bool operator!=(const Matrix<T>& f, const Matrix<T>& g)
+{
+  return !(f == g);
 }
 
 template <typename T>
@@ -200,8 +212,9 @@ template <typename T>
 Matrix<T> operator*(const Matrix<T>& g, const Matrix<T>& f)
 {
   if (g.width() != f.height())
-    throw std::logic_error("Dimension mismatch:" + std::to_string(g.width()) +
-                           " != " + std::to_string(f.height()));
+    throw std::logic_error("Matrix<T>::operator*: Dimension mismatch" +
+                           std::to_string(g.width()) + " != " +
+                           std::to_string(f.height()));
 
   Matrix<T> gf(g.height(), f.width());
   for (std::size_t i = 0; i < g.height(); ++i) {

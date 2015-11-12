@@ -1,8 +1,46 @@
 #include <exception>
 
+#include <gmpxx.h>
 #include "gtest/gtest.h"
 
 #include "../src/matrix.h"
+
+TEST(Matrix, Properties)
+{
+  MatrixQ A(3, 2);
+
+  ASSERT_EQ(3, A.height());
+  ASSERT_EQ(2, A.width());
+}
+
+TEST(Matrix, InitializerList)
+{
+  MatrixQ A = {{1, 2, 3}, {4, 5, 6}};
+
+  ASSERT_EQ(2, A(0, 1));
+  ASSERT_EQ(2, A.height());
+  ASSERT_EQ(3, A.width());
+}
+
+TEST(Matrix, Comparison)
+{
+  MatrixQ A = {{1, 2, 3}, {4, 5, 6}};
+  MatrixQ B = {{1, 2, 3}, {4, 5, 6}};
+  MatrixQ C = {{1, 2, 3}, {4, 6, 6}};
+  MatrixQ D = {{1, 2, 3, 3}, {4, 5, 6, 6}};
+
+  ASSERT_EQ(A, B);
+  ASSERT_NE(A, C);
+  ASSERT_NE(A, D);
+}
+
+TEST(Matrix, RowAdd)
+{
+  MatrixQ A = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+  MatrixQ B = {{1, 2, 3}, {4, 5, 6}, {9, 12, 15}};
+  A.row_add(0, 2, 2_mpq);
+  ASSERT_EQ(B, A);
+}
 
 TEST(Matrix, Composition)
 {

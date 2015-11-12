@@ -21,6 +21,5 @@ add_executable(akss ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ${SOURCES})
 target_link_libraries(akss gmp gmpxx)
 
 add_executable(akss_test ${SOURCES} ${TEST_SOURCES})
-target_link_libraries(akss_test gmp gmpxx gtest pthread)
+target_link_libraries(akss_test gmp gmpxx gtest gtest_main pthread)
 add_test(NAME akss_test COMMAND akss_test)
-

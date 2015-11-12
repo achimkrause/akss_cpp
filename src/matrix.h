@@ -9,6 +9,8 @@
 
 #include <gmpxx.h>
 
+#include "gtest/gtest_prod.h"
+
 template <typename T, template <typename> class E>
 class MatrixExpression
 {
@@ -100,19 +102,30 @@ class Matrix : public MatrixExpression<T, Matrix>
     return true;
   }
 
- private:
-  void row_add(const std::size_t i1, const std::size_t i2, const T& lambda);
-  void row_mul(const std::size_t i, const T& lambda);
-  void row_swap(const std::size_t i1, const std::size_t i2);
 
-  void col_add(const std::size_t j1, const std::size_t j2, const T& lambda);
-  void col_mul(const std::size_t j, const T& lambda);
-  void col_swap(const std::size_t j1, const std::size_t j2);
+  FRIEND_TEST(Matrix, RowAdd);
+  FRIEND_TEST(Matrix, RowMul);
+  FRIEND_TEST(Matrix, RowSwap);
+  FRIEND_TEST(Matrix, ColAdd);
+  FRIEND_TEST(Matrix, ColMul);
+  FRIEND_TEST(Matrix, ColSwap);
+
+ private:
+  Matrix<T>& row_add(const std::size_t i1, const std::size_t i2, const T& lambda);
+  Matrix<T>& row_mul(const std::size_t i, const T& lambda);
+  Matrix<T>& row_swap(const std::size_t i1, const std::size_t i2);
+
+  Matrix<T>& col_add(const std::size_t j1, const std::size_t j2, const T& lambda);
+  Matrix<T>& col_mul(const std::size_t j, const T& lambda);
+  Matrix<T>& col_swap(const std::size_t j1, const std::size_t j2);
 
   const std::size_t height_;
   const std::size_t width_;
   std::vector<T> entries_;
 };
+
+template <typename T>
+bool operator!=(const Matrix<T>& f, const Matrix<T>& g);
 
 template <typename T>
 class MatrixSlice : public MatrixExpression<T, MatrixSlice>
