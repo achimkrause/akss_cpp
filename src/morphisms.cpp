@@ -42,7 +42,7 @@ AbelianGroup compute_cokernel(const std::size_t p, const MatrixQ& f,
 
   AbelianGroup C(f_rel_y.height() - rank_diff - torsion_rank, torsion_rank);
   for (std::size_t i = rank_diff; i < rank_diff + torsion_rank; ++i)
-    C(i - rank_diff) = p_valuation(p, f_rel_y(i, i));
+    C(i - rank_diff) = static_cast<std::size_t>(p_valuation(p, f_rel_y(i, i)));
 
   for (MatrixQ& g_to_Y : to_Y_copy)
     to_C.emplace_back(

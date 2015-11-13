@@ -1,3 +1,4 @@
+#include <exception>
 #include <iostream>
 
 #include "p_local.h"
@@ -15,7 +16,7 @@ void smith_reduce_p(const std::size_t p, Matrix<T>& f, MatrixRefList<T>& to_X,
        diagonal_block_size < std::min(f.height(), f.width());
        ++diagonal_block_size) {
     std::size_t i_min = 0;
-      std::size_t j_min = 0;
+    std::size_t j_min = 0;
     T min_value;
     int min_valuation = 0;
 
@@ -31,7 +32,11 @@ void smith_reduce_p(const std::size_t p, Matrix<T>& f, MatrixRefList<T>& to_X,
         }
       }
     }
+
     if (!min_value) break;
+    if (min_valuation < 0)
+      throw std::logic_error(
+          "smith_reduce_p: matrix entry has negative valuation");
 
     for (std::size_t i = diagonal_block_size; i < f.height(); ++i) {
       if (i == i_min) continue;
@@ -48,7 +53,7 @@ void smith_reduce_p(const std::size_t p, Matrix<T>& f, MatrixRefList<T>& to_X,
     basis_vectors_swap(to_Y, from_Y, i_min, diagonal_block_size);
     basis_vectors_swap(to_X, from_X, j_min, diagonal_block_size);
 
-    lambda = p_pow(p, min_valuation) / min_value;
+    lambda = p_pow(p, static_cast<std::size_t>(min_valuation)) / min_value;
     basis_vectors_mul(to_X, from_X, diagonal_block_size, lambda);
   }
 
