@@ -6,17 +6,17 @@
 class BigradedIndex
 {
  public:
-  BigradedIndex(const std::size_t p, const std::size_t q, const std::size_t s);
+  BigradedIndex(const int p, const int q, const int s);
 
-  inline std::size_t p() const
+  inline int p() const
   {
     return p_;
   }
-  inline std::size_t q() const
+  inline int q() const
   {
     return q_;
   }
-  inline std::size_t s() const
+  inline int s() const
   {
     return s_;
   }
@@ -25,9 +25,9 @@ class BigradedIndex
   friend bool operator<(const BigradedIndex& a, const BigradedIndex& b);
 
  private:
-  const std::size_t p_;
-  const std::size_t q_;
-  const std::size_t s_;
+  const int p_;
+  const int q_;
+  const int s_;
 };
 
 bool operator==(const BigradedIndex& a, const BigradedIndex& b);

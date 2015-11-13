@@ -1,3 +1,34 @@
+template <typename T, template <typename> class E>
+MatrixExpression<T, E>::MatrixExpression(const MatrixExpression<T, E>&)
+{
+}
+
+template <typename T, template <typename> class E1,
+          template <typename> class E2>
+bool operator==(const MatrixExpression<T, E1>& f,
+                const MatrixExpression<T, E2>& g)
+{
+  if (f.height() != g.height()) return false;
+
+  if (f.width() != g.width()) return false;
+
+  for (std::size_t i = 0; i < f.height(); ++i) {
+    for (std::size_t j = 0; j < f.width(); ++j) {
+      if (f(i, j) != g(i, j)) return false;
+    }
+  }
+
+  return true;
+}
+
+template <typename T, template <typename> class E1,
+          template <typename> class E2>
+bool operator!=(const MatrixExpression<T, E1>& f,
+                const MatrixExpression<T, E2>& g)
+{
+  return !(f == g);
+}
+
 template <typename T>
 IdentityMatrix<T>::IdentityMatrix(const std::size_t n)
     : n_(n)
@@ -42,21 +73,15 @@ Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T>> lst)
 }
 
 template <typename T>
-Matrix<T>::Matrix(const Matrix<T>& other)
-    : height_(other.height_), width_(other.width_), entries_(other.entries_)
-{
-}
-
-template <typename T>
 template <template <typename> class E>
-Matrix<T>::Matrix(const MatrixExpression<T, E>& expr)
+Matrix<T>::Matrix(const MatrixExpression<T, E>&& expr)
     : height_(expr.height()), width_(expr.width())
 {
   entries_.reserve(height_ * width_);
 
   for (std::size_t i = 0; i < height_; ++i) {
     for (std::size_t j = 0; j < width_; ++j) {
-      entries_.emplace_back(expr(i, j));
+      entries_.push_back(expr(i, j));
     }
   }
 }
@@ -145,12 +170,6 @@ Matrix<T>& Matrix<T>::col_swap(const std::size_t j1, const std::size_t j2)
     swap(entries_[i * width_ + j1], entries_[i * width_ + j2]);
   }
   return *this;
-}
-
-template <typename T>
-bool operator!=(const Matrix<T>& f, const Matrix<T>& g)
-{
-  return !(f == g);
 }
 
 template <typename T>

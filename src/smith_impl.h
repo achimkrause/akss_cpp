@@ -14,9 +14,10 @@ void smith_reduce_p(const std::size_t p, Matrix<T>& f, MatrixRefList<T>& to_X,
   for (std::size_t diagonal_block_size = 0;
        diagonal_block_size < std::min(f.height(), f.width());
        ++diagonal_block_size) {
-    std::size_t i_min, j_min;
+    std::size_t i_min = 0;
+      std::size_t j_min = 0;
     T min_value;
-    int min_valuation;
+    int min_valuation = 0;
 
     for (std::size_t i = diagonal_block_size; i < f.height(); ++i) {
       for (std::size_t j = diagonal_block_size; j < f.width(); ++j) {

@@ -13,6 +13,11 @@ template <typename T, template <typename> class E>
 class MatrixExpression
 {
  public:
+  MatrixExpression() = default;
+  MatrixExpression(const MatrixExpression<T, E>&);
+  MatrixExpression<T, E>& operator=(const MatrixExpression<T, E>& other) =
+      delete;
+
   inline std::size_t height() const
   {
     return static_cast<const E<T>&>(*this).height();
@@ -34,11 +39,22 @@ class MatrixExpression
   }
 };
 
+template <typename T, template <typename> class E1,
+          template <typename> class E2>
+bool operator==(const MatrixExpression<T, E1>& f,
+                const MatrixExpression<T, E2>& g);
+
+template <typename T, template <typename> class E1,
+          template <typename> class E2>
+bool operator!=(const MatrixExpression<T, E1>& f,
+                const MatrixExpression<T, E2>& g);
+
 template <typename T>
 class IdentityMatrix : public MatrixExpression<T, IdentityMatrix>
 {
  public:
   IdentityMatrix(const std::size_t n);
+  IdentityMatrix(const IdentityMatrix<T>& other) = default;
 
   std::size_t height() const;
   std::size_t width() const;
@@ -58,10 +74,11 @@ class Matrix : public MatrixExpression<T, Matrix>
  public:
   Matrix(const std::size_t height, const std::size_t width);
   Matrix(std::initializer_list<std::initializer_list<T>> lst);
-  Matrix(const Matrix<T>& other);
+  Matrix(const Matrix<T>& other) = default;
+  Matrix(Matrix<T>&& other) = default;
 
   template <template <typename> class E>
-  Matrix(const MatrixExpression<T, E>& expr);
+  Matrix(const MatrixExpression<T, E>&& expr);
 
   inline std::size_t height() const
   {
@@ -80,19 +97,6 @@ class Matrix : public MatrixExpression<T, Matrix>
 
   static IdentityMatrix<T> identity(const std::size_t n);
 
-  friend bool operator==(const Matrix<T>& f, const Matrix<T>& g)
-  {
-    if (f.height_ != g.height_) return false;
-
-    if (f.width_ != g.width_) return false;
-
-    for (std::size_t i = 0; i < f.entries_.size(); ++i) {
-      if (f.entries_[i] != g.entries_[i]) return false;
-    }
-
-    return true;
-  }
-
   Matrix<T>& row_add(const std::size_t i1, const std::size_t i2,
                      const T& lambda);
   Matrix<T>& row_mul(const std::size_t i, const T& lambda);
@@ -110,14 +114,12 @@ class Matrix : public MatrixExpression<T, Matrix>
 };
 
 template <typename T>
-bool operator!=(const Matrix<T>& f, const Matrix<T>& g);
-
-template <typename T>
 class MatrixSlice : public MatrixExpression<T, MatrixSlice>
 {
  public:
   MatrixSlice(Matrix<T>& mat, const std::size_t i, const std::size_t j,
               const std::size_t height, const std::size_t width);
+  MatrixSlice(MatrixSlice<T>&& other) = default;
 
   MatrixSlice<T>& operator=(const MatrixSlice<T>& other);
 
@@ -171,6 +173,5 @@ template <typename T>
 MatrixList<T> deref(const MatrixRefList<T>& ref_list);
 template <typename T>
 MatrixRefList<T> ref(MatrixList<T>& list);
-
 
 #include "matrix_impl.h"
