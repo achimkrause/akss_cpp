@@ -97,7 +97,7 @@ AbelianGroup compute_kernel(const std::size_t p, const MatrixQ& f,
   for (MatrixQ& g_from_X : from_X_ref) {
     MatrixQ g_rel_y(g_from_X.height(), f.width() + Y.tor_rank());
     g_rel_y(0, 0, g_from_X.height(), f.width()) = g_from_X;
-    to_X_rel_y.emplace_back(g_rel_y);     
+    from_X_rel_y.emplace_back(g_rel_y);
     //is this copying around? should I instead do 
     //to_X_rel_y.emplace_back(g_from_X.height(), f.width() + Y.tor_rank());
     //then modify the entry in to_X_rel_y?
