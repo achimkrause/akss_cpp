@@ -58,5 +58,4 @@ int main()
   MatrixQ G = MatrixQ::identity(6);
   G(0, 0, 2, 2) = G(0, 2, 2, 2);
   std::cout << "G: " << G << std::flush;
-  G(0, 0, 2, 2) = G(1, 1, 2, 2);
 }
