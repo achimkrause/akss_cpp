@@ -32,7 +32,7 @@ template <>
 mpq_class AbelianGroup::TorsionMatrix<mpq_class>::operator()(
     const std::size_t i, const std::size_t j) const
 {
-  return i == j ? p_pow(p_, group_.orders_[i]) : 0;
+  return i == j ? p_pow_z(p_, group_.orders_[i]) : 0;
 }
 
 AbelianGroup::TorsionMatrix<mpq_class> AbelianGroup::torsion_matrix(
