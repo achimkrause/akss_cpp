@@ -26,6 +26,7 @@ class AbelianGroup
   };
 
  public:
+  AbelianGroup();
   AbelianGroup(const std::size_t free_rank, const std::size_t tor_rank);
 
   inline OrderExponent operator()(const std::size_t i) const
