@@ -18,16 +18,16 @@ void smith_reduce_p(const std::size_t p, Matrix<T>& f, MatrixRefList<T>& to_X,
     std::size_t i_min = 0;
     std::size_t j_min = 0;
     T min_value;
-    int min_valuation = 0;
+    long min_valuation = 0;
 
     for (std::size_t i = diagonal_block_size; i < f.height(); ++i) {
       for (std::size_t j = diagonal_block_size; j < f.width(); ++j) {
         if (f(i, j)) {
-          if (!min_value || p_valuation(p, f(i, j)) < min_valuation) {
+          if (!min_value || p_val_q(p, f(i, j)) < min_valuation) {
             i_min = i;
             j_min = j;
             min_value = f(i, j);
-            min_valuation = p_valuation(p, min_value);
+            min_valuation = p_val_q(p, min_value);
           }
         }
       }
@@ -53,7 +53,7 @@ void smith_reduce_p(const std::size_t p, Matrix<T>& f, MatrixRefList<T>& to_X,
     basis_vectors_swap(to_Y, from_Y, i_min, diagonal_block_size);
     basis_vectors_swap(to_X, from_X, j_min, diagonal_block_size);
 
-    lambda = p_pow(p, static_cast<std::size_t>(min_valuation)) / min_value;
+    lambda = p_pow_z(p, static_cast<std::size_t>(min_valuation)) / min_value;
     basis_vectors_mul(to_X, from_X, diagonal_block_size, lambda);
   }
 

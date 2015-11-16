@@ -2,6 +2,7 @@
 
 #include <map>
 #include <vector>
+#include "abelian_group.h"
 
 class TrigradedIndex
 {
