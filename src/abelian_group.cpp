@@ -3,6 +3,10 @@
 #include "abelian_group.h"
 #include "p_local.h"
 
+AbelianGroup::AbelianGroup() : free_rank_(0), orders_(0)
+{
+}
+
 AbelianGroup::AbelianGroup(const std::size_t free_rank,
                            const std::size_t tor_rank)
     : free_rank_(free_rank), orders_(tor_rank)

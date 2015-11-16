@@ -74,8 +74,12 @@ class Matrix : public MatrixExpression<T, Matrix>
  public:
   Matrix(const std::size_t height, const std::size_t width);
   Matrix(std::initializer_list<std::initializer_list<T>> lst);
+
   Matrix(const Matrix<T>& other) = default;
+  Matrix<T>& operator=(const Matrix<T>& other);
+
   Matrix(Matrix<T>&& other) = default;
+  Matrix<T>& operator=(Matrix<T>&& other) = default;
 
   template <template <typename> class E>
   Matrix(const MatrixExpression<T, E>&& expr);
