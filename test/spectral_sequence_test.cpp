@@ -2,21 +2,21 @@
 
 #include "../src/spectral_sequence.h"
 
-TEST(BigradedIndex, Equality)
+TEST(TrigradedIndex, Equality)
 {
-  BigradedIndex ind_1(3, 2, 1);
-  BigradedIndex ind_2(3, 2, 1);
+  TrigradedIndex ind_1(3, 2, 1);
+  TrigradedIndex ind_2(3, 2, 1);
 
   EXPECT_EQ(ind_1, ind_2);
 }
 
-TEST(BigradedIndex, LessThan)
+TEST(TrigradedIndex, LessThan)
 {
-  BigradedIndex ind_1(4, -1, 11);
-  BigradedIndex ind_2(2, 2, 10);
-  BigradedIndex ind_3(2, 3, 4);
-  BigradedIndex ind_4(2, 5, 5);
-  BigradedIndex ind_5(2, 5, 6);
+  TrigradedIndex ind_1(4, -1, 11);
+  TrigradedIndex ind_2(2, 2, 10);
+  TrigradedIndex ind_3(2, 3, 4);
+  TrigradedIndex ind_4(2, 5, 5);
+  TrigradedIndex ind_5(2, 5, 6);
 
   EXPECT_LT(ind_1, ind_2);
   EXPECT_LT(ind_2, ind_3);

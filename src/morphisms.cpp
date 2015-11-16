@@ -138,7 +138,7 @@ AbelianGroup compute_kernel(const std::size_t p, const MatrixQ& f,
   }
   MatrixQList from_free_K;
   for(MatrixQ& g_from_X_rel_y : from_X_rel_y) {
-    to_free_K.emplace_back(g_from_X_rel_y(0,rank_diff,
+    from_free_K.emplace_back(g_from_X_rel_y(0,rank_diff,
                      g_from_X_rel_y.height(), g_from_X_rel_y.width()-rank_diff));
 
   }
@@ -149,6 +149,56 @@ AbelianGroup compute_kernel(const std::size_t p, const MatrixQ& f,
   AbelianGroup free_K(rel_K.height(),0);
   //then, compute the cokernel of the new rel_x_lift with the respective to_Y, from_Y.
   return (compute_cokernel(p,rel_K,free_K,to_free_K_ref, from_free_K_ref, to_K, from_K));
+}
+
+AbelianGroup compute_image(const std::size_t p, const MatrixQ& f,
+                              const AbelianGroup& X,
+                              const AbelianGroup& Y,
+                              MatrixQList& to_I, MatrixQList& from_I) {
+	MatrixQList to_K;
+	MatrixQList from_K;
+
+	MatrixQList from_X;
+	from_X.emplace_back(IdentityMatrix<mpq_class>(X.tor_rank()+X.free_rank()));
+
+	compute_kernel(p, f, X, Y, MatrixQRefList(), ref(from_X), to_K, from_K);
+
+	MatrixQList from_X2;
+	MatrixQ f_copy(f);
+	from_X2.emplace_back(f_copy);
+
+	MatrixQList to_X2;
+	to_X2.emplace_back(IdentityMatrix<mpq_class>(X.tor_rank()+X.free_rank()));
+
+	AbelianGroup I = compute_cokernel(p,from_K[0], X, ref(to_X2), ref(from_X2) , to_I, from_I);
+
+	return I;
+}
+
+
+int morphism_equal(std::size_t p, const MatrixQ& f, const MatrixQ& g, const AbelianGroup& Y) {
+
+	for(std::size_t i=0; i<f.height(); i++) {
+		for(std::size_t j=0; j<f.width(); j++) {
+			if(f(i,j)!=g(i,j)) {
+				if(i<Y.tor_rank()) {
+					if(p_valuation(p, f(i,j)-g(i,j)) < Y(i)) {
+						return 0;
+					}
+				}
+				else {
+					return 0;
+				}
+			}
+		}
+	}
+	return 1;
+}
+
+int morphism_zero(std::size_t p, const MatrixQ& f, const AbelianGroup& Y) {
+	MatrixQ g(f.height(), f.width());
+
+	return morphism_equal(p, f, g, Y);
 }
 
 
