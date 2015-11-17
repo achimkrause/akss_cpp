@@ -36,19 +36,19 @@ bool operator<(const TrigradedIndex& a, const TrigradedIndex& b);
 
 class GroupSequence {
  public:
-	GroupSequence(const AbelianGroup grp);
-
-	const AbelianGroup& getGroup(std::size_t index);
-	const MatrixQ& getMatrix(std::size_t index);
+	GroupSequence(const std::size_t index_min, const AbelianGroup& grp);
+	const AbelianGroup& get_group(const std::size_t index);
+	const MatrixQ& get_matrix(const std::size_t index);
+	void append(const std::size_t index, const AbelianGroup& grp, const MatrixQ& map);
+	void done();
 
  private:
-	int current;
-	std::map<std::size_t, AbelianGroup> groups;
-	std::map<std::size_t, MatrixQ> matrices;
-	//The n-th matrix represents the map between the 0-th group and the n+1-st group.
-	//if number n is not set explicitly, but smaller than current (current+1 in the case of matrices),
+	bool done_;
+	std::map<std::size_t, std::tuple<AbelianGroup,MatrixQ>> entries_;
+
+	//The matrix nr n represents the map between the group nr index_min and the n-th group.
+	//if number n is not set explicitly, but smaller than current,
 	//its value is given by the next smaller index.
-
-
-
+	//if done is set, arbitrarily large indices are allowed,
+	//and all higher things are treated as equal to the highest one that has been set explicitly.
 };

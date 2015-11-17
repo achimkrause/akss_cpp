@@ -49,6 +49,11 @@ class AbelianGroup
     return orders_.size();
   }
 
+  inline std::size_t rank() const
+  {
+	  return free_rank_ + orders_.size();
+  }
+
   TorsionMatrix<mpq_class> torsion_matrix(const std::size_t p) const;
 
  private:
