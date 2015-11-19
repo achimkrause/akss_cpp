@@ -52,3 +52,14 @@ class GroupSequence {
 	//if done is set, arbitrarily large indices are allowed,
 	//and all higher things are treated as equal to the highest one that has been set explicitly.
 };
+
+class SpectralSequence {
+
+public:
+	void set_diff(TrigradedIndex pqs, std::size_t r, MatrixQ matrix);
+	const AbelianGroup& get_e_ab(TrigradedIndex pqs, std::size_t a, std::size_t b);
+private:
+	std::map<TrigradedIndex, GroupSequence> kernels;
+	std::map<TrigradedIndex, GroupSequence> cokernels;
+	std::map<TrigradedIndex, MatrixQList> differentials;
+};

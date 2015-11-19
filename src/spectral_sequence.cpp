@@ -41,11 +41,11 @@ void GroupSequence::done() {
 }
 
 const AbelianGroup& GroupSequence::get_group(const std::size_t index){
-	if(index > entries_.rbegin()->first) {
-		throw std::logic_error("GroupSequence::get_group: Index is not yet set");
-	}
 	if(index < entries_.begin()->first) {
 		throw std::logic_error("GroupSequence::get_group: Index is less than min_index");
+	}
+	if(!done_ && index > entries_.rbegin()->first) {
+		throw std::logic_error("GroupSequence::get_group: Index is not yet set");
 	}
 	std::map<std::size_t, std::tuple<AbelianGroup,MatrixQ>>::iterator
 	    pos = entries_.upper_bound(index);
@@ -54,14 +54,16 @@ const AbelianGroup& GroupSequence::get_group(const std::size_t index){
 }
 
 const MatrixQ& GroupSequence::get_matrix(const std::size_t index){
-	if(index > entries_.rbegin()->first) {
-		throw std::logic_error("GroupSequence::get_group: Index is not yet set");
-	}
 	if(index < entries_.begin()->first) {
-		throw std::logic_error("GroupSequence::get_group: Index is less than min_index");
+		throw std::logic_error("GroupSequence::get_matrix: Index is less than min_index");
+	}
+	if(!done_ && index > entries_.rbegin()->first) {
+		throw std::logic_error("GroupSequence::get_matrix: Index is not yet set");
 	}
 	std::map<std::size_t, std::tuple<AbelianGroup,MatrixQ>>::iterator
 	    pos = entries_.upper_bound(index);
 
 	return(std::get<1>(pos->second));
 }
+
+
