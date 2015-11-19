@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include "abelian_group.h"
+#include "morphisms.h"
 
 class TrigradedIndex
 {
@@ -24,7 +25,7 @@ class TrigradedIndex
 
   friend bool operator==(const TrigradedIndex& a, const TrigradedIndex& b);
   friend bool operator<(const TrigradedIndex& a, const TrigradedIndex& b);
-
+  friend TrigradedIndex operator+(const TrigradedIndex&a, const TrigradedIndex& b);
  private:
   const int p_;
   const int q_;
@@ -33,6 +34,7 @@ class TrigradedIndex
 
 bool operator==(const TrigradedIndex& a, const TrigradedIndex& b);
 bool operator<(const TrigradedIndex& a, const TrigradedIndex& b);
+TrigradedIndex operator+(const TrigradedIndex&a, const TrigradedIndex& b);
 
 class GroupSequence {
  public:
@@ -41,10 +43,13 @@ class GroupSequence {
 	const MatrixQ& get_matrix(const std::size_t index);
 	void append(const std::size_t index, const AbelianGroup& grp, const MatrixQ& map);
 	void done();
+	std::size_t get_current();
+	void inc();
 
  private:
 	bool done_;
 	std::map<std::size_t, std::tuple<AbelianGroup,MatrixQ>> entries_;
+	std::size_t current_;
 
 	//The matrix nr n represents the map between the group nr index_min and the n-th group.
 	//if number n is not set explicitly, but smaller than current,
@@ -59,7 +64,9 @@ public:
 	void set_diff(TrigradedIndex pqs, std::size_t r, MatrixQ matrix);
 	const AbelianGroup& get_e_ab(TrigradedIndex pqs, std::size_t a, std::size_t b);
 private:
-	std::map<TrigradedIndex, GroupSequence> kernels;
-	std::map<TrigradedIndex, GroupSequence> cokernels;
-	std::map<TrigradedIndex, MatrixQList> differentials;
+	std::map<TrigradedIndex, GroupSequence> kernels_;
+	std::map<TrigradedIndex, GroupSequence> cokernels_;
+	std::map<TrigradedIndex, MatrixQList> differentials_;
+	//const TrigradedIndex diff_offset_; oops, depends on r. Do we want a function object for that?
+	std::size_t prime_;
 };
