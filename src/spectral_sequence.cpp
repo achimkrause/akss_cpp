@@ -85,9 +85,9 @@ void SpectralSequence::set_diff(TrigradedIndex pqs, std::size_t r, MatrixQ matri
 
 
 	std::map<TrigradedIndex,GroupSequence>::iterator
-	           cokers = cokernels_.find(pqs);
+	           kers = kernels_.find(pqs);
 	std::map<TrigradedIndex,GroupSequence>::iterator
-		       kers = cokernels_.find(pqs+diff_offset);
+		       cokers = cokernels_.find(pqs+diff_offset);
 	if(kers == kernels_.end()) {
 		throw std::logic_error("SpectralSequence::set_diff: Kernel is not set.");
 	}
@@ -124,6 +124,31 @@ void SpectralSequence::set_diff(TrigradedIndex pqs, std::size_t r, MatrixQ matri
 	cokers->second.append(r+1,new_cokernel.group, new_cokernel.maps_to[0]);
 }
 
-const AbelianGroup& SpectralSequence::get_e_ab(TrigradedIndex pqs, std::size_t a, std::size_t b) {
+//computes the kernel of the differentials up to d_{a-1} mod the image of the differentials up to d_{b-1}.
+//for example, get_e_ab(pqs, r, r) computes the E_r page at pqs.
+const AbelianGroup SpectralSequence::get_e_ab(TrigradedIndex pqs, std::size_t a, std::size_t b) {
+	std::map<TrigradedIndex,GroupSequence>::iterator
+        kers = kernels_.find(pqs);
+	std::map<TrigradedIndex,GroupSequence>::iterator
+		cokers = cokernels_.find(pqs);
+	if(kers == kernels_.end()) {
+		throw std::logic_error("SpectralSequence::get_e_ab: Kernel is not set.");
+	}
+	if(cokers == cokernels_.end()) {
+		throw std::logic_error("SpectralSequence::get_e_ab: Cokernel is not set.");
+	}
+	if(kers -> second . get_current() <a) {
+		throw std::logic_error("SpectralSequence::get_e_ab: Kernel is at wrong r.");
+	}
+	if(cokers -> second . get_current() < b) {
+		throw std::logic_error("SpectralSequence::get_e_ab: Cokernel is at wrong r.");
+	}
 
+	AbelianGroup K = kers->second.get_group(a);
+	AbelianGroup C = cokers->second.get_group(b);
+
+	MatrixQ map = (cokers->second.get_matrix(b)) * (kers->second.get_matrix(a));
+
+	GroupWithMorphisms I = compute_image(prime_,map, K, C);
+	return I.group;
 }
