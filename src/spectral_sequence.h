@@ -62,7 +62,7 @@ class SpectralSequence {
 
 public:
 	void set_diff(TrigradedIndex pqs, std::size_t r, MatrixQ matrix);
-	const AbelianGroup& get_e_ab(TrigradedIndex pqs, std::size_t a, std::size_t b);
+	const AbelianGroup get_e_ab(TrigradedIndex pqs, std::size_t a, std::size_t b);
 private:
 	std::map<TrigradedIndex, GroupSequence> kernels_;
 	std::map<TrigradedIndex, GroupSequence> cokernels_;
