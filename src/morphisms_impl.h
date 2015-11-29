@@ -1,5 +1,4 @@
 #include "morphisms.h"
-
 #include <iostream>
 
 #include "abelian_group.h"
@@ -7,14 +6,16 @@
 #include "p_local.h"
 #include "smith.h"
 
-GroupWithMorphisms::GroupWithMorphisms(const std::size_t free_rank,
+template <unsigned int P>
+GroupWithMorphisms<P>::GroupWithMorphisms(const std::size_t free_rank,
                                        const std::size_t tor_rank)
     : group(free_rank, tor_rank)
 {
 }
 
-GroupWithMorphisms compute_cokernel(const std::size_t p, const MatrixQ& f,
-                                    const AbelianGroup& Y,
+template <unsigned int P>
+GroupWithMorphisms<P> compute_cokernel(const MatrixQ& f,
+                                    const AbelianGroup<P>& Y,
                                     const MatrixQRefList& to_Y_ref,
                                     const MatrixQRefList& from_Y_ref)
 {
@@ -30,7 +31,7 @@ GroupWithMorphisms compute_cokernel(const std::size_t p, const MatrixQ& f,
   MatrixQRefList to_Y_copy_ref = ref(to_Y_copy);
   MatrixQRefList from_Y_copy_ref = ref(from_Y_copy);
 
-  smith_reduce_p(p, f_rel_Y, to_X, from_X, to_Y_copy_ref, from_Y_copy_ref);
+  smith_reduce_p(P, f_rel_Y, to_X, from_X, to_Y_copy_ref, from_Y_copy_ref);
 
   std::size_t rank_diff = 0;
   std::size_t torsion_rank = 0;
@@ -45,11 +46,11 @@ GroupWithMorphisms compute_cokernel(const std::size_t p, const MatrixQ& f,
       break;
   }
 
-  GroupWithMorphisms C(f_rel_Y.height() - rank_diff - torsion_rank,
+  GroupWithMorphisms<P> C(f_rel_Y.height() - rank_diff - torsion_rank,
                        torsion_rank);
   for (std::size_t i = rank_diff; i < rank_diff + torsion_rank; ++i)
     C.group(i - rank_diff) =
-        static_cast<std::size_t>(p_val_q(p, f_rel_Y(i, i)));
+        static_cast<std::size_t>(p_val_q(P, f_rel_Y(i, i)));
 
   for (MatrixQ& g_to_Y : to_Y_copy)
     C.maps_to.emplace_back(
@@ -62,17 +63,18 @@ GroupWithMorphisms compute_cokernel(const std::size_t p, const MatrixQ& f,
   return C;
 }
 
-GroupWithMorphisms compute_kernel(const std::size_t p, const MatrixQ& f,
-                                  const AbelianGroup& X, const AbelianGroup& Y,
+template <unsigned int P>
+GroupWithMorphisms<P> compute_kernel(const MatrixQ& f,
+                                  const AbelianGroup<P>& X, const AbelianGroup<P>& Y,
                                   const MatrixQRefList& to_X_ref,
                                   const MatrixQRefList& from_X_ref)
 {
   MatrixQ f_rel_Y(f.height(), f.width() + Y.tor_rank());
   f_rel_Y(0, 0, f.height(), f.width()) = f;
-  f_rel_Y(0, f.width(), Y.tor_rank(), Y.tor_rank()) = Y.torsion_matrix(p);
+  f_rel_Y(0, f.width(), Y.tor_rank(), Y.tor_rank()) = Y.torsion_matrix();
 
   MatrixQ rel_x_lift(f.width() + Y.tor_rank(), X.tor_rank());
-  rel_x_lift(0, 0, X.tor_rank(), X.tor_rank()) = X.torsion_matrix(p);
+  rel_x_lift(0, 0, X.tor_rank(), X.tor_rank()) = X.torsion_matrix();
   // rel_x_lift(f.width(), 0, Y.tor_rank(), X.tor_rank()) = -lift of f\circ
   // rel_x over rel_Y.
   //      Can be computed by multiplying the columns of f with the orders of X,
@@ -81,7 +83,7 @@ GroupWithMorphisms compute_kernel(const std::size_t p, const MatrixQ& f,
   for (std::size_t i = 0; i < Y.tor_rank(); ++i) {
     for (std::size_t j = 0; j < X.tor_rank(); ++j) {
       long order_diff = static_cast<long>(X(j) - Y(i));
-      rel_x_lift(f.width() + i, j) = -f(i, j) * p_pow_q(p, order_diff);
+      rel_x_lift(f.width() + i, j) = -f(i, j) * p_pow_q(P, order_diff);
     }
   }
 
@@ -94,7 +96,7 @@ GroupWithMorphisms compute_kernel(const std::size_t p, const MatrixQ& f,
     MatrixQ fg = f * g_to_X;
     for (std::size_t i = 0; i < Y.tor_rank(); ++i) {
       for (std::size_t j = 0; j < g_to_X.width(); ++j) {
-        to_X_rel_Y.back()(f.width() + i, j) = -fg(i, j) / p_pow_z(p, Y(i));
+        to_X_rel_Y.back()(f.width() + i, j) = -fg(i, j) / p_pow_z(P, Y(i));
       }
     }
   }
@@ -112,7 +114,7 @@ GroupWithMorphisms compute_kernel(const std::size_t p, const MatrixQ& f,
 
   MatrixQRefList to_Y;
   MatrixQRefList from_Y;
-  smith_reduce_p(p, f_rel_Y, to_X_rel_Y_ref, from_X_rel_Y_ref, to_Y, from_Y);
+  smith_reduce_p(P, f_rel_Y, to_X_rel_Y_ref, from_X_rel_Y_ref, to_Y, from_Y);
 
   std::size_t rank_diff;
   for (rank_diff = 0; rank_diff < std::min(f_rel_Y.height(), f_rel_Y.width());
@@ -148,32 +150,34 @@ GroupWithMorphisms compute_kernel(const std::size_t p, const MatrixQ& f,
   AbelianGroup free_K(rel_K.height(), 0);
   // then, compute the cokernel of the new rel_x_lift with the respective
   // to_Y, from_Y.
-  return compute_cokernel(p, rel_K, free_K, to_free_K_ref, from_free_K_ref);
+  return compute_cokernel(rel_K, free_K, to_free_K_ref, from_free_K_ref);
 }
 
-GroupWithMorphisms compute_image(const std::size_t p, const MatrixQ& f,
-                                 const AbelianGroup& X, const AbelianGroup& Y)
+template <unsigned int P>
+GroupWithMorphisms<P> compute_image(const MatrixQ& f,
+                                 const AbelianGroup<P>& X, const AbelianGroup<P>& Y)
 {
   MatrixQRefList to_X;
   MatrixQList from_X = {MatrixQ::identity(f.width())};
-  GroupWithMorphisms K = compute_kernel(p, f, X, Y, to_X, ref(from_X));
+  GroupWithMorphisms<P> K = compute_kernel(f, X, Y, to_X, ref(from_X));
 
   MatrixQList to_X_2 = {MatrixQ::identity(f.width())};
   MatrixQList from_X_2 = {f};
-  GroupWithMorphisms img =
-      compute_cokernel(p, f, Y, ref(to_X_2), ref(from_X_2));
+  GroupWithMorphisms<P> img =
+      compute_cokernel(f, Y, ref(to_X_2), ref(from_X_2));
 
   return img;
 }
 
-bool morphism_equal(std::size_t p, const MatrixQ& f, const MatrixQ& g,
-                    const AbelianGroup& Y)
+template <unsigned int P>
+bool morphism_equal(const MatrixQ& f, const MatrixQ& g,
+                    const AbelianGroup<P>& Y)
 {
   for (std::size_t i = 0; i < f.height(); i++) {
     for (std::size_t j = 0; j < f.width(); j++) {
       if (f(i, j) != g(i, j)) {
         if (i >= Y.tor_rank() ||
-            static_cast<std::size_t>(p_val_q(p, f(i, j) - g(i, j))) < Y(i)) {
+            static_cast<std::size_t>(p_val_q(P, f(i, j) - g(i, j))) < Y(i)) {
           return false;
         }
       }
@@ -182,9 +186,10 @@ bool morphism_equal(std::size_t p, const MatrixQ& f, const MatrixQ& g,
   return true;
 }
 
-bool morphism_zero(std::size_t p, const MatrixQ& f, const AbelianGroup& Y)
+template <unsigned int P>
+bool morphism_zero(std::size_t P, const MatrixQ& f, const AbelianGroup<P>& Y)
 {
   MatrixQ g(f.height(), f.width());
 
-  return morphism_equal(p, f, g, Y);
+  return morphism_equal(f, g, Y);
 }

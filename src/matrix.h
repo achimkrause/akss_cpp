@@ -118,6 +118,10 @@ class Matrix : public MatrixExpression<T, Matrix>
 };
 
 template <typename T>
+std::ostream& operator<<(std::ostream& stream, const Matrix<T>& f);
+
+
+template <typename T>
 class MatrixSlice : public MatrixExpression<T, MatrixSlice>
 {
  public:

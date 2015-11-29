@@ -3,28 +3,38 @@
 #include "abelian_group.h"
 #include "matrix.h"
 
-struct GroupWithMorphisms {
+template <unsigned int P>
+struct GroupWithMorphisms<P> {
  public:
   GroupWithMorphisms(const std::size_t free_rank, const std::size_t tor_rank);
 
-  AbelianGroup group;
+  AbelianGroup<P> group;
   MatrixQList maps_to;
   MatrixQList maps_from;
 };
 
-GroupWithMorphisms compute_cokernel(const std::size_t p, const MatrixQ& f,
-                                    const AbelianGroup& Y,
+template <unsigned int P>
+GroupWithMorphisms<P> compute_cokernel(const MatrixQ& f,
+                                    const AbelianGroup<P>& Y,
                                     const MatrixQRefList& to_Y_ref,
                                     const MatrixQRefList& from_Y_ref);
 
-GroupWithMorphisms compute_kernel(const std::size_t p, const MatrixQ& f,
-                                  const AbelianGroup& X, const AbelianGroup& Y,
+template <unsigned int P>
+GroupWithMorphisms<P> compute_kernel(const MatrixQ& f,
+                                  const AbelianGroup<P>& X, const AbelianGroup<P>& Y,
                                   const MatrixQRefList& to_X_ref,
                                   const MatrixQRefList& from_X_ref);
 
-GroupWithMorphisms compute_image(const std::size_t p, const MatrixQ& f,
-                                    const AbelianGroup& X,
-                                    const AbelianGroup& Y);
+template <unsigned int P>
+GroupWithMorphisms<P> compute_image(const MatrixQ& f,
+                                    const AbelianGroup<P>& X,
+                                    const AbelianGroup<P>& Y);
 
-bool morphism_equal(std::size_t p, const MatrixQ& f, const MatrixQ& g, const AbelianGroup& Y);
-bool morphism_zero(std::size_t p, const MatrixQ& f, const AbelianGroup& Y);
+template <unsigned int P>
+bool morphism_equal(const MatrixQ& f, const MatrixQ& g, const AbelianGroup<P>& Y);
+
+template <unsigned int P>
+bool morphism_zero(const MatrixQ& f, const AbelianGroup<P>& Y);
+
+
+#include <morphisms_impl.h>
