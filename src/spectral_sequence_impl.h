@@ -1,5 +1,3 @@
-#include "spectral_sequence.h"
-
 #include <tuple>
 
 TrigradedIndex::TrigradedIndex(const int p, const int q, const int s)

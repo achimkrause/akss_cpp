@@ -80,3 +80,5 @@ class SpectralSequence
   // function object for that?
   std::size_t prime_;
 };
+
+#include "spectral_sequence_impl.h"
