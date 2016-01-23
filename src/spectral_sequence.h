@@ -69,7 +69,7 @@ public:
 	const MatrixQ get_inclusion(TrigradedIndex pqs, std::size_t r);
 	const MatrixQ get_projection(TrigradedIndex pqs, std::size_t r);
 	void set_e_2(TrigradedIndex pqs, AbelianGroup grp);
-	std::size_t get_prime();
+	const std::size_t get_prime();
 private:
 	std::map<TrigradedIndex, GroupSequence> kernels_;
 	std::map<TrigradedIndex, GroupSequence> cokernels_;

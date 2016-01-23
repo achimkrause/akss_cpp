@@ -161,3 +161,66 @@ const AbelianGroup SpectralSequence::get_e_ab(TrigradedIndex pqs, std::size_t a,
 	GroupWithMorphisms I = compute_image(prime_,map, K, C);
 	return I.group;
 }
+
+const AbelianGroup SpectralSequence::get_e_2(TrigradedIndex pqs){
+	std::map<TrigradedIndex,GroupSequence>::iterator
+	        kers = kernels_.find(pqs);
+	if(kers == kernels_.end()) {
+		throw std::logic_error("SpectralSequence::get_e_2: Group is not set.");
+	}
+
+	return kers->second.get_group(2);
+}
+
+const AbelianGroup SpectralSequence::get_kernel(TrigradedIndex pqs, std::size_t r){
+	std::map<TrigradedIndex,GroupSequence>::iterator
+			kers = kernels_.find(pqs);
+	if(kers == kernels_.end()) {
+		throw std::logic_error("SpectralSequence::get_kernel: Group is not set.");
+	}
+	if(kers -> second . get_current() <r) {
+		throw std::logic_error("SpectralSequence::get_kernel: Kernel is at wrong r.");
+	}
+	return kers->second.get_group(r);
+}
+
+const AbelianGroup SpectralSequence::get_cokernel(TrigradedIndex pqs, std::size_t r){
+	std::map<TrigradedIndex,GroupSequence>::iterator
+			cokers = cokernels_.find(pqs);
+	if(cokers == cokernels_.end()) {
+		throw std::logic_error("SpectralSequence::get_cokernel: Group is not set.");
+	}
+	if(cokers -> second . get_current() <r) {
+		throw std::logic_error("SpectralSequence::get_cokernel: Cokernel is at wrong r.");
+	}
+	return cokers->second.get_group(r);
+}
+
+const MatrixQ SpectralSequence::get_inclusion(TrigradedIndex pqs, std::size_t r){
+	std::map<TrigradedIndex,GroupSequence>::iterator
+		kers = kernels_.find(pqs);
+	if(kers == kernels_.end()) {
+		throw std::logic_error("SpectralSequence::get_inclusion: Group is not set.");
+	}
+	if(kers -> second . get_current() <r) {
+		throw std::logic_error("SpectralSequence::get_inclusion: Kernel is at wrong r.");
+	}
+	return kers->second.get_matrix(r);
+}
+
+
+const MatrixQ SpectralSequence::get_projection(TrigradedIndex pqs, std::size_t r){
+	std::map<TrigradedIndex,GroupSequence>::iterator
+			cokers = cokernels_.find(pqs);
+	if(cokers == cokernels_.end()) {
+		throw std::logic_error("SpectralSequence::get_projection: Group is not set.");
+	}
+	if(cokers -> second . get_current() <r) {
+		throw std::logic_error("SpectralSequence::get_projection: Cokernel is at wrong r.");
+	}
+	return cokers->second.get_matrix(r);
+}
+
+const std::size_t SpectralSequence::get_prime(){
+	return prime_;
+}
