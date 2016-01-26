@@ -166,6 +166,39 @@ GroupWithMorphisms compute_image(const std::size_t p, const MatrixQ& f,
   return img;
 }
 
+//lifts a map from f:A -> Y over the inclusion inj: X -> Y. We only need relations for Y.
+MatrixQ lift_over_injective(const std::size_t p, const MatrixQ& f,
+		               const MatrixQ& inj, const AbelianGroup& Y)
+{
+	MatrixQ rel_y_inj(inj.height(), Y.tor_rank()+inj.width());
+	rel_y_inj(0,0,inj.height(),Y.tor_rank()) = Y.torsion_matrix(p);
+	rel_y_inj(0,Y.tor_rank(),inj.height(),inj.width()) = inj;
+
+
+	MatrixQ proj(inj.width(), Y.tor_rank()+inj.width());
+	proj(0, Y.tor_rank(), inj.width(), inj.width()) = MatrixQ::identity(inj.width());
+	MatrixQList to_Y = {f};//copy f here?? How?
+	MatrixQList from_X = {proj};
+
+	MatrixQList from_rel_y_X = {MatrixQ::identity(rel_y_inj.width())};
+	smith_reduce_p(p, rel_y_inj, MatrixQRefList(), ref(from_X),ref(to_Y) ,MatrixQRefList());
+
+	MatrixQ lift(rel_y_inj.width(), f.width());
+
+	int d_max = 0;
+	while(d_max < rel_y_inj.height() && d_max < rel_y_inj.width() && rel_y_inj(d_max,d_max) != 0) {
+		d_max++;
+	}
+	for(int i=0; i<d_max; i++){
+		for(int j=0; j<f.width(); j++){
+			lift(i,j) = f(i,j) / rel_y_inj(d_max,d_max);
+		}
+	}
+
+	return proj * lift;
+}
+
+
 bool morphism_equal(std::size_t p, const MatrixQ& f, const MatrixQ& g,
                     const AbelianGroup& Y)
 {

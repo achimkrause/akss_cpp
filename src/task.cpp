@@ -150,7 +150,7 @@ bool DifferentialTask::solve(){
 		}
 	}
 
-	AbelianGroup coker_right_img = sequence_.get_cokernel(TrigradedIndex(index_.p()-r_, index_.q()+r-1, index_.s()+1),r_);
+	AbelianGroup coker_right_img = sequence_.get_cokernel(TrigradedIndex(index_.p()-r_, index_.q()+r_-1, index_.s()+1),r_);
 	MatrixQ indet_map = projection_right_img*from_K_tensor;
 	GroupWithMorphisms indeterminacy = compute_image(sequence_.get_prime(),indet_map,AbelianGroup(indet_map.width(),0),coker_right_img); //compute image of indet_map.
 	if(indeterminacy.group.rank()==0){
