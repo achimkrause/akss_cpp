@@ -47,7 +47,8 @@ bool ExtensionTask::solve(){
 
      MatrixQ v_i_map; //get from nat's table
 
-	 MatrixQ matrix; //compute lift of v_i_map along inclusion.
+	 MatrixQ matrix = lift_from_free(sequence_.get_prime(),v_i_map, inclusion, iterated_kernel); //compute lift of v_i_map along inclusion.
+
 	 GroupWithMorphisms coker = compute_cokernel(sequence_.get_prime(),matrix, iterated_kernel, MatrixQRefList(), MatrixQRefList());
 	 list_groups.insert(std::pair<int,AbelianGroup>(q_+1,coker.group));
 	}
@@ -96,14 +97,20 @@ bool DifferentialTask::solve(){
 	AbelianGroup er_left_img = sequence_.get_cokernel(TrigradedIndex(0,index_.q()+r_-1,index_.s()+1),r_);
 	MatrixQ projection_left_img = sequence_.get_projection(TrigradedIndex(0,index_.q()+r_+1,index_.s()+1),r_);
 
-	MatrixQ lift; //lift the differential from (r,q,s) -> (0,q-r+1,s+1) over projection_left_img
-
+	MatrixQ lift = lift_from_free(sequence_.get_prime(), /*placeholder for differential from (r,q,s) -> (0,q-r+1,s+1)*/,
+			                        projection_left_img, er_left_img);
+	  //"lift" the differential from (r,q,s) -> (0,q-r+1,s+1) over projection_left_img
+      //(actually just a free presentation)
 
 	AbelianGroup e2_0_q_s = sequence_.get_e_2(TrigradedIndex(0,index_.q(), index_.s()));
 	AbelianGroup ker_right_domain = sequence_.get_kernel(index_, r_);
 	int mon_rank; //compute rank of Z[l_i] in degree p-r here!
 
 	MatrixQ result_lift(mon_rank*e2_left_img.rank(), ker_right_domain.rank());
+
+	MatrixQ inclusion_right_domain = sequence_.get_inclusion(index_, r_);
+	AbelianGroup ker_left_domain = sequence_.get_kernel(TrigradedIndex(r_,index_.q(), index_.s()),r_);
+	MatrixQ inclusion_left_domain = sequence_.get_inclusion(TrigradedIndex(r_,index_.q(), index_.s()),r_);
 
 	for(int i=0; i<mon_rank; i++){
 		MatrixQ r_I; //obtain the i_th operation from degree p to degree r here from nat's tables.
@@ -117,10 +124,10 @@ bool DifferentialTask::solve(){
 		}
 
 
-		MatrixQ inclusion_right_domain = sequence_.get_inclusion(index_, r_);
-		MatrixQ inclusion_left_domain = sequence_.get_inclusion(TrigradedIndex(r_,index_.q(), index_.s()),r_);
-		MatrixQ r_I_ker;//lift r_I_q * inclusion_right_domain against
-		                  //inclusion_left_domain
+		//lift r_I_q * inclusion_right_domain against
+		//inclusion_left_domain (okay because this is injective).
+		MatrixQ r_I_ker= lift_from_free(sequence_.get_prime(),
+				 r_I_q*inclusion_right_domain, inclusion_left_domain, ker_left_domain);
 
 		MatrixQ lift_r_I = lift * r_I_ker;
 		for(int h; h<e2_left_img.rank(); h++){
