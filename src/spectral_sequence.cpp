@@ -30,7 +30,7 @@ GroupSequence::GroupSequence(const std::size_t index_min,
     : done_(false), current_(index_min)
 {
   entries_.emplace(index_min,
-                   std::make_tuple(grp, MatrixQ::identity(grp.rank())));
+                   std::make_pair(grp, MatrixQ::identity(grp.rank())));
 }
 
 void GroupSequence::append(const std::size_t index, const AbelianGroup& grp,
@@ -88,6 +88,29 @@ void GroupSequence::inc()
 {
   ++current_;
 }
+void SpectralSequence::set_diff_zero(TrigradedIndex pqs, std::size_t r){
+	TrigradedIndex diff_offset(-r,r-1,1); //is that cast okay?
+
+	std::map<TrigradedIndex,GroupSequence>::iterator
+	           kers = kernels_.find(pqs);
+	std::map<TrigradedIndex,GroupSequence>::iterator
+		       cokers = cokernels_.find(pqs+diff_offset);
+	if(kers == kernels_.end()) {
+		throw std::logic_error("SpectralSequence::set_diff_zero: Kernel is not set.");
+	}
+	if(cokers == cokernels_.end()) {
+		throw std::logic_error("SpectralSequence::set_diff_zero: Cokernel is not set.");
+	}
+	if(kers -> second . get_current() != r) {
+		throw std::logic_error("SpectralSequence::set_diff_zero: Kernel is at wrong r.");
+	}
+	if(cokers -> second . get_current() != r) {
+		throw std::logic_error("SpectralSequence::set_diff_zero: Cokernel is at wrong r.");
+	}
+
+	kers->second.inc();
+	cokers->second.inc();
+}
 
 void SpectralSequence::set_diff(TrigradedIndex pqs, std::size_t r, MatrixQ matrix){
 	TrigradedIndex diff_offset(-r,r-1,1); //is that cast okay?
@@ -131,6 +154,59 @@ void SpectralSequence::set_diff(TrigradedIndex pqs, std::size_t r, MatrixQ matri
 
 	kers->second.append(r+1,new_kernel.group, new_kernel.maps_from[0]);
 	cokers->second.append(r+1,new_cokernel.group, new_cokernel.maps_to[0]);
+
+	std::map<TrigradedIndex,std::map<std::size_t,MatrixQ>>::iterator
+		           diffmap = differentials_.find(pqs);
+
+	if(diffmap==differentials_.end()) {
+		std::map<std::size_t,MatrixQ> diffs_at_pqs;
+		diffs_at_pqs.insert(std::pair<std::size_t,MatrixQ>(r,matrix));
+		differentials_.emplace(pqs,diffs_at_pqs);
+	}
+	else {
+		diffmap->second.emplace(r,matrix);
+	}
+}
+
+const MatrixQ SpectralSequence::get_diff_from(TrigradedIndex pqs, std::size_t r){
+	TrigradedIndex diff_offset(-r,r-1,1);
+	std::map<TrigradedIndex,GroupSequence>::iterator
+	     kers = kernels_.find(pqs);
+	std::map<TrigradedIndex,GroupSequence>::iterator
+		 cokers = cokernels_.find(pqs+diff_offset);
+	if(kers == kernels_.end()) {
+		throw std::logic_error("SpectralSequence::get_diff_from: Domain is not set.");
+	}
+	if(cokers == kernels_.end()) {
+		throw std::logic_error("SpectralSequence::get_diff_from: Codomain is not set.");
+	}
+	if(kers -> second . get_current() <=r) {
+		throw std::logic_error("SpectralSequence::get_diff_from: Differential isn't set yet.");
+	}
+	if(cokers -> second . get_current() <=r) {
+		throw std::logic_error("SpectralSequence::get_diff_from: Differential isn't set yet.");
+	}
+	std::map<TrigradedIndex,std::map<std::size_t,MatrixQ>>::iterator
+	      diffmap = differentials_.find(pqs);
+	if(diffmap == differentials_.end()){
+		int height = cokers->second.get_group(r);
+		int width = kers->second.get_group(r);
+		MatrixQ result(height, width);
+		return result;
+	}
+	std::map<std::size_t,MatrixQ>::iterator diff = diffmap->second.find(r);
+	if(diff==diffmap->second.end()){
+		int height = cokers->second.get_group(r);
+		int width = kers->second.get_group(r);
+		MatrixQ result(height, width);
+		return result;
+	}
+	return diff->second;
+}
+
+const MatrixQ SpectralSequence::get_diff_to(TrigradedIndex pqs, std::size_t r){
+	TrigradedIndex diff_offset(-r,r-1,1);
+	return get_diff_from(pqs-diff_offset, r);
 }
 
 //computes the kernel of the differentials up to d_{a-1} mod the image of the differentials up to d_{b-1}.
@@ -219,6 +295,16 @@ const MatrixQ SpectralSequence::get_projection(TrigradedIndex pqs, std::size_t r
 		throw std::logic_error("SpectralSequence::get_projection: Cokernel is at wrong r.");
 	}
 	return cokers->second.get_matrix(r);
+}
+
+void SpectralSequence::set_e2(TrigradedIndex pqs, AbelianGroup grp){
+	std::map<TrigradedIndex,GroupSequence>::iterator
+        kers = kernels_.find(pqs);
+	if(kers != kernels_.end()) {
+		throw std::logic_error("SpectralSequence::set_e2: Group is already set.");
+	}
+	kernels_.emplace(pqs,2,grp);
+	cokernels_.emplace(pqs,2,grp);
 }
 
 const std::size_t SpectralSequence::get_prime(){

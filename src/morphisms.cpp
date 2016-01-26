@@ -182,11 +182,17 @@ MatrixQ lift_from_free(const std::size_t p, const MatrixQ& f,
 
 	MatrixQ proj(map.width(), Y.tor_rank()+map.width());
 	proj(0, Y.tor_rank(), map.width(), map.width()) = MatrixQ::identity(map.width());
-	MatrixQList to_Y = {f};//copy f here?? How?
+
+	MatrixQ f_copy(f);
+	MatrixQList to_Y = {f_copy};
 	MatrixQList from_X = {proj};
 
-	MatrixQList from_rel_y_X = {MatrixQ::identity(rel_y_map.width())};
-	smith_reduce_p(p, rel_y_map, MatrixQRefList(), ref(from_X),ref(to_Y) ,MatrixQRefList());
+	MatrixQRefList to_X_dummy;
+	MatrixQRefList from_Y_dummy;
+	MatrixQRefList from_X_ref = ref(from_X);
+	MatrixQRefList to_Y_ref = ref(to_Y);
+
+	smith_reduce_p(p, rel_y_map, to_X_dummy, from_X_ref, to_Y_ref, from_Y_dummy);
 
 	MatrixQ lift(rel_y_map.width(), f.width());
 
@@ -196,7 +202,7 @@ MatrixQ lift_from_free(const std::size_t p, const MatrixQ& f,
 	}
 	for(int i=0; i<d_max; i++){
 		for(int j=0; j<f.width(); j++){
-			lift(i,j) = f(i,j) / rel_y_map(d_max,d_max);
+			lift(i,j) = f_copy(i,j) / rel_y_map(d_max,d_max);
 		}
 	}
 

@@ -48,7 +48,7 @@ class GroupSequence {
 
  private:
 	bool done_;
-	std::map<std::size_t, std::tuple<AbelianGroup,MatrixQ>> entries_;
+	std::map<std::size_t, std::pair<AbelianGroup,MatrixQ>> entries_;
 	std::size_t current_;
 
 	//The matrix nr n represents the map between the group nr index_min and the n-th group.
@@ -61,24 +61,24 @@ class GroupSequence {
 class SpectralSequence {
 
 public:
+	void set_diff_zero(TrigradedIndex pqs, std::size_t r);
 	void set_diff(TrigradedIndex pqs, std::size_t r, MatrixQ matrix);
+	const MatrixQ get_diff_from(TrigradedIndex pqs,std::size_t r);
+	const MatrixQ get_diff_to(TrigradedIndex pqs,std::size_t r);
 	const AbelianGroup get_e_ab(TrigradedIndex pqs, std::size_t a, std::size_t b);
 	const AbelianGroup get_e_2(TrigradedIndex pqs);
 	const AbelianGroup get_kernel(TrigradedIndex pqs, std::size_t r);
 	const AbelianGroup get_cokernel(TrigradedIndex pqs, std::size_t r);
 	const MatrixQ get_inclusion(TrigradedIndex pqs, std::size_t r);
 	const MatrixQ get_projection(TrigradedIndex pqs, std::size_t r);
-	void set_e_2(TrigradedIndex pqs, AbelianGroup grp);
+	void set_e2(TrigradedIndex pqs, AbelianGroup grp);
 	const std::size_t get_prime();
 private:
 	std::map<TrigradedIndex, GroupSequence> kernels_;
 	std::map<TrigradedIndex, GroupSequence> cokernels_;
-	std::map<TrigradedIndex, MatrixQList> differentials_;
+	std::map<TrigradedIndex, std::map<std::size_t, MatrixQ>> differentials_;
 	//const TrigradedIndex diff_offset_; oops, depends on r. Do we want a function object for that?
-	//also we maybe want to store differentials in another way: for a fixed pqs, there should
-	//be a map of matrices, indexed over r, and contains only the nonzero ones.
-	//maybe generally we ACTUALLY need some crazy data structure which stores each differential once,
-	//but is able to find for a given pqs all the leaving AND entering differentials. In addition, one should be able to tell the program
-	//when one of those lists is "done".
 	std::size_t prime_;
 };
+
+
