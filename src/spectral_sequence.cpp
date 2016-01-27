@@ -211,7 +211,7 @@ const MatrixQ SpectralSequence::get_diff_to(TrigradedIndex pqs, std::size_t r){
 
 //computes the kernel of the differentials up to d_{a-1} mod the image of the differentials up to d_{b-1}.
 //for example, get_e_ab(pqs, r, r) computes the E_r page at pqs.
-const AbelianGroup SpectralSequence::get_e_ab(TrigradedIndex pqs, std::size_t a, std::size_t b) {
+const GroupWithMorphisms SpectralSequence::get_e_ab(TrigradedIndex pqs, std::size_t a, std::size_t b) {
 	std::map<TrigradedIndex,GroupSequence>::iterator
         kers = kernels_.find(pqs);
 	std::map<TrigradedIndex,GroupSequence>::iterator
@@ -235,7 +235,7 @@ const AbelianGroup SpectralSequence::get_e_ab(TrigradedIndex pqs, std::size_t a,
 	MatrixQ map = (cokers->second.get_matrix(b)) * (kers->second.get_matrix(a));
 
 	GroupWithMorphisms I = compute_image(prime_,map, K, C);
-	return I.group;
+	return I;
 }
 
 const AbelianGroup SpectralSequence::get_e_2(TrigradedIndex pqs){

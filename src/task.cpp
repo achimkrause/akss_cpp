@@ -8,7 +8,7 @@ GroupTask::GroupTask(SpectralSequence& sequence, const TrigradedIndex index)
 }
 
 
-bool GroupTask::solve(){
+bool GroupTask::autosolve(){
 	AbelianGroup null_q_s = sequence_.get_e_2(TrigradedIndex(0,index_.q(),index_.s()));
 
 	int mon_rank; //compute rank of Z[l_i] in degree p here!
@@ -19,7 +19,7 @@ bool GroupTask::solve(){
 			result(i*mon_rank +j) = null_q_s(i);
 		}
 	}
-	sequence_.set_e_2(index_,result);
+	sequence_.set_e2(index_,result);
 	return true;
 }
 
@@ -28,15 +28,15 @@ ExtensionTask::ExtensionTask(SpectralSequence& sequence, int q, int s)
   : sequence_(sequence),q_(q),s_(s) {
 }
 
-bool ExtensionTask::solve(){
+bool ExtensionTask::autosolve(){
 
-	std::map<int, AbelianGroup> list_groups;
 	for(int n=1; n<=q_;n++){
 		//take the term at (n,q-n+1,s-1) taking into account differentials up to n-1 leaving,
 		//and differentials up to q-n+2 entering.
-		AbelianGroup eab = sequence_.get_e_ab(TrigradedIndex(n, q_-n+1, s_-1), n-1,q_-n+2);
-		if(eab.rank()!=0) {
-			list_groups.insert(std::pair<int,AbelianGroup>(n,eab));
+		GroupWithMorphisms eab = sequence_.get_e_ab(TrigradedIndex(n, q_-n+1, s_-1), n-1,q_-n+2);
+		if(eab.group.rank()!=0) {
+			list_groups_.emplace(n,eab.group);
+			list_maps_.emplace(n,eab.maps_to.begin());
 		}
 	}
 
@@ -50,36 +50,44 @@ bool ExtensionTask::solve(){
 	 MatrixQ matrix = lift_from_free(sequence_.get_prime(),v_i_map, inclusion, iterated_kernel); //compute lift of v_i_map along inclusion.
 
 	 GroupWithMorphisms coker = compute_cokernel(sequence_.get_prime(),matrix, iterated_kernel, MatrixQRefList(), MatrixQRefList());
-	 list_groups.insert(std::pair<int,AbelianGroup>(q_+1,coker.group));
+	 list_groups_.insert(std::pair<int,AbelianGroup>(q_+1,coker.group));
 	}
 
 
-	if(list_groups.size()==0){
-		sequence_.set_e_2(TrigradedIndex(0,q_,s_),AbelianGroup(0,0));
-		//set differentials to 0, or in sparse differential storage, set upper bounds of lists up.
+	if(list_groups_.size()==0){
+		sequence_.set_e2(TrigradedIndex(0,q_,s_),AbelianGroup(0,0));
+		for(int i=2; i<=q_+1; i++) {
+			sequence_.set_diff_zero(TrigradedIndex(i,q_-i+1,s_-1), i);
+		}
+		return true;
 	}
-	else if(list_groups.size()==1){
-		sequence_.set_e_2(TrigradedIndex(0,q_,s_),list_groups.begin()->second);
-		int r=list_groups.begin()->first;
-		//set the first r-1 differentials to 0, the r'th to the projection from
+	if(list_groups_.size()==1){
+		sequence_.set_e2(TrigradedIndex(0,q_,s_),list_groups_.begin()->second);
+		int r=list_groups_.begin()->first;
+
+		//set the first r-1 differentials to 0
+		for(int i=2; i<r; i++) {
+			sequence_.set_diff_zero(TrigradedIndex(i,q_-i+1,s_-1), i);
+		}
+
+		//the r'th to the projection from
 		// r-1'st kernel -> r-1'st kernel / image of all differentials
+		sequence_.set_diff(TrigradedIndex(r,q_-r+1,s_-1), r, list_maps_.begin()->second);
+
+		//and the rest 0.
+		for(int i=r+1; i<=q_+1; i++) {
+			sequence_.set_diff_zero(TrigradedIndex(i,q_-i+1,s_-1), i);
+		}
+		return true;
 	}
-	else {
-		//shell: generate dialog for an extension problem with list_groups
-		//get a group from the shell, and then ask for differential maps
-		//if we encounter a problem somewhere, stop with false.
-		//store progress in groups_ and differentials_
-		//if we fail, there should be an option to revert back to stage r, or completely.
-		//if it works, then write all of it into the spectral sequence.
-	}
-	return true;
+	return false;
 }
 
 DifferentialTask::DifferentialTask(SpectralSequence& sequence, TrigradedIndex index, int r)
  : sequence_(sequence), index_(index), r_(r){
 }
 
-bool DifferentialTask::solve(){
+bool DifferentialTask::autosolve(){
 	//First, lift the map d_r: (r,q,s) -> (0,q-r+1,s+1) to a map lift between frees
 	//(this just means lifting it against the projection E2 -> r-1'st cokernel), and then taking the corresponding matrix)
 	//For each sequence I in the appropriate degree, compute the induced map on r-1'st kernels
@@ -97,10 +105,13 @@ bool DifferentialTask::solve(){
 	AbelianGroup er_left_img = sequence_.get_cokernel(TrigradedIndex(0,index_.q()+r_-1,index_.s()+1),r_);
 	MatrixQ projection_left_img = sequence_.get_projection(TrigradedIndex(0,index_.q()+r_+1,index_.s()+1),r_);
 
-	MatrixQ lift = lift_from_free(sequence_.get_prime(), /*placeholder for differential from (r,q,s) -> (0,q-r+1,s+1)*/,
-			                        projection_left_img, er_left_img);
+	MatrixQ diff_left = sequence_.get_diff_from(TrigradedIndex(r_,index_.q(),index_.s), r_);
+
 	  //"lift" the differential from (r,q,s) -> (0,q-r+1,s+1) over projection_left_img
       //(actually just a free presentation)
+	MatrixQ lift = lift_from_free(sequence_.get_prime(), diff_left,
+			                        projection_left_img, er_left_img);
+
 
 	AbelianGroup e2_0_q_s = sequence_.get_e_2(TrigradedIndex(0,index_.q(), index_.s()));
 	AbelianGroup ker_right_domain = sequence_.get_kernel(index_, r_);
@@ -139,7 +150,7 @@ bool DifferentialTask::solve(){
 
 	MatrixQ projection_right_img = sequence_.get_projection(TrigradedIndex(index_.p()-r_,index_.q()-r_+1,index_.s()+1),r_);
 
-	MatrixQ differential = projection_right_img * result_lift;
+	diff_candidate_ = projection_right_img * result_lift;
 
 
 	//now also determine indeterminacy:
@@ -159,15 +170,13 @@ bool DifferentialTask::solve(){
 
 	AbelianGroup coker_right_img = sequence_.get_cokernel(TrigradedIndex(index_.p()-r_, index_.q()+r_-1, index_.s()+1),r_);
 	MatrixQ indet_map = projection_right_img*from_K_tensor;
-	GroupWithMorphisms indeterminacy = compute_image(sequence_.get_prime(),indet_map,AbelianGroup(indet_map.width(),0),coker_right_img); //compute image of indet_map.
-	if(indeterminacy.group.rank()==0){
-		//enter differential as the corresponding differential
+	indeterminacy_ = compute_image(sequence_.get_prime(),indet_map,AbelianGroup(indet_map.width(),0),coker_right_img); //compute image of indet_map.
+	if(indeterminacy_.group.rank()==0){
+		sequence_.set_diff(index_, r_, diff_candidate_);
+		return true;
 	}
-	else {
-		//indeterminacy.maps_from.begin() columns generate indeterminacy.
-		//prompt the user with both the indeterminacy  and the candidate, ask for a matrix from shell.
-	}
-	return true;
+
+	return false;
 }
 
 

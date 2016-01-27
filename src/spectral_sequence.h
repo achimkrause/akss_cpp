@@ -65,7 +65,7 @@ public:
 	void set_diff(TrigradedIndex pqs, std::size_t r, MatrixQ matrix);
 	const MatrixQ get_diff_from(TrigradedIndex pqs,std::size_t r);
 	const MatrixQ get_diff_to(TrigradedIndex pqs,std::size_t r);
-	const AbelianGroup get_e_ab(TrigradedIndex pqs, std::size_t a, std::size_t b);
+	const GroupWithMorphisms get_e_ab(TrigradedIndex pqs, std::size_t a, std::size_t b);
 	const AbelianGroup get_e_2(TrigradedIndex pqs);
 	const AbelianGroup get_kernel(TrigradedIndex pqs, std::size_t r);
 	const AbelianGroup get_cokernel(TrigradedIndex pqs, std::size_t r);

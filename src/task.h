@@ -5,7 +5,7 @@
 class GroupTask
 {
 public:
-	bool solve();
+	bool autosolve();
 	GroupTask(SpectralSequence& sequence, TrigradedIndex index);
 	//computes E^2_{p,q,s} from E^2_{0,q,s} by tensoring with degree p in Z[l_i]
 private:
@@ -21,7 +21,7 @@ private:
 class DifferentialTask
 {
 public:
-	bool solve();
+	bool autosolve();
 	 //tries to compute the differential from (p,q,s) to (p-r,q+r-1,s+1) using operations and
 	 //knowledge about the differential from (r,q,s) to (0,q+r-1,s+1).
 	 //If that doesn't work, it displays the partial info obtained,
@@ -33,12 +33,14 @@ private:
 
 	TrigradedIndex index_;
 	std::size_t r_;
+	GroupWithMorphisms indeterminacy_;
+	MatrixQ diff_candidate_;
 };
 
 class ExtensionTask
 {
 public:
-	bool solve();
+	bool autosolve();
 	 //gathers all the groups in degrees (n, q-n+1, s-1). If at most one of them is nonzero,
 	 //fill in that group at (0,q,s) and take the differential to be the identity.
 	 //otherwise,
@@ -62,5 +64,10 @@ private:
 
     GroupSequence groups_;
     MatrixQList differentials_;
+
+	std::map<int, AbelianGroup> list_groups_; //the groups remaining after present differentials
+	                                         //of the form iterated kernel / subgrp
+	std::map<int, MatrixQ> list_maps_;        //the maps iterated kernel -> iterated kernel/subgrp.
+
 
 };
