@@ -1,21 +1,32 @@
+#pragma once
+
+#include <map>
+#include "spectral_sequence.h"
+#include "morphisms.h"
 
 
+class Task {
+public:
+	bool autosolve();
+
+private:
+
+	//todo: find reasonable parent class for all Tasks.
+};
 
 
 class GroupTask
 {
 public:
 	bool autosolve();
-	GroupTask(SpectralSequence& sequence, TrigradedIndex index);
+	GroupTask(SpectralSequence& sequence, const std::size_t p, const std::size_t q);
 	//computes E^2_{p,q,s} from E^2_{0,q,s} by tensoring with degree p in Z[l_i]
 private:
 	SpectralSequence& sequence_;
 	//reference to shell
 
-	TrigradedIndex index_;
-
-
-
+	std::size_t p_;
+	std::size_t q_;
 };
 
 class DifferentialTask

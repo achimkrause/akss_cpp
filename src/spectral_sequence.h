@@ -26,6 +26,7 @@ class TrigradedIndex
   friend bool operator==(const TrigradedIndex& a, const TrigradedIndex& b);
   friend bool operator<(const TrigradedIndex& a, const TrigradedIndex& b);
   friend TrigradedIndex operator+(const TrigradedIndex&a, const TrigradedIndex& b);
+  friend TrigradedIndex operator-(const TrigradedIndex&a, const TrigradedIndex& b);
  private:
   const int p_;
   const int q_;
@@ -73,10 +74,13 @@ public:
 	const MatrixQ get_projection(TrigradedIndex pqs, std::size_t r);
 	void set_e2(TrigradedIndex pqs, AbelianGroup grp);
 	const std::size_t get_prime();
+	const std::pair<std::size_t,std::size_t> get_bounds(std::size_t q);
+	void set_bounds(std::size_t q, std::size_t min_s, std::size_t max_s);
 private:
 	std::map<TrigradedIndex, GroupSequence> kernels_;
 	std::map<TrigradedIndex, GroupSequence> cokernels_;
 	std::map<TrigradedIndex, std::map<std::size_t, MatrixQ>> differentials_;
+	std::map<std::size_t, std::pair<std::size_t,std::size_t>> bounds_;
 	//const TrigradedIndex diff_offset_; oops, depends on r. Do we want a function object for that?
 	std::size_t prime_;
 };

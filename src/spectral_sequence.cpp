@@ -25,6 +25,11 @@ TrigradedIndex operator+(const TrigradedIndex& a, const TrigradedIndex& b)
   return TrigradedIndex(a.p_ + b.p_, a.q_ + b.q_, a.s_ + b.s_);
 }
 
+TrigradedIndex operator-(const TrigradedIndex& a, const TrigradedIndex& b)
+{
+  return TrigradedIndex(a.p_ - b.p_, a.q_ - b.q_, a.s_ - b.s_);
+}
+
 GroupSequence::GroupSequence(const std::size_t index_min,
                              const AbelianGroup& grp)
     : done_(false), current_(index_min)
@@ -170,6 +175,22 @@ void SpectralSequence::set_diff(TrigradedIndex pqs, std::size_t r, MatrixQ matri
 
 const MatrixQ SpectralSequence::get_diff_from(TrigradedIndex pqs, std::size_t r){
 	TrigradedIndex diff_offset(-r,r-1,1);
+	TrigradedIndex pqs_target = pqs+diff_offset;
+
+	if(pqs_target.p() < 0 || pqs_target.q() < 0){
+		return MatrixQ(0,0);
+	}
+
+	std::pair<std::size_t, std::size_t> bounds = get_bounds(pqs.q());
+	if(pqs.s() < bounds.first || pqs.s() > bounds.second){
+		return MatrixQ(0,0);
+	}
+
+	std::pair<std::size_t, std::size_t> bounds_target = get_bounds(pqs_target.q());
+	if(pqs_target.s() < bounds_target.first || pqs_target.s() > bounds_target.second){
+		return MatrixQ(0,0);
+	}
+
 	std::map<TrigradedIndex,GroupSequence>::iterator
 	     kers = kernels_.find(pqs);
 	std::map<TrigradedIndex,GroupSequence>::iterator
@@ -189,15 +210,15 @@ const MatrixQ SpectralSequence::get_diff_from(TrigradedIndex pqs, std::size_t r)
 	std::map<TrigradedIndex,std::map<std::size_t,MatrixQ>>::iterator
 	      diffmap = differentials_.find(pqs);
 	if(diffmap == differentials_.end()){
-		int height = cokers->second.get_group(r);
-		int width = kers->second.get_group(r);
+		int height = cokers->second.get_group(r).rank();
+		int width = kers->second.get_group(r).rank();
 		MatrixQ result(height, width);
 		return result;
 	}
 	std::map<std::size_t,MatrixQ>::iterator diff = diffmap->second.find(r);
 	if(diff==diffmap->second.end()){
-		int height = cokers->second.get_group(r);
-		int width = kers->second.get_group(r);
+		int height = cokers->second.get_group(r).rank();
+		int width = kers->second.get_group(r).rank();
 		MatrixQ result(height, width);
 		return result;
 	}
@@ -212,6 +233,10 @@ const MatrixQ SpectralSequence::get_diff_to(TrigradedIndex pqs, std::size_t r){
 //computes the kernel of the differentials up to d_{a-1} mod the image of the differentials up to d_{b-1}.
 //for example, get_e_ab(pqs, r, r) computes the E_r page at pqs.
 const GroupWithMorphisms SpectralSequence::get_e_ab(TrigradedIndex pqs, std::size_t a, std::size_t b) {
+	std::pair<std::size_t, std::size_t> bounds = get_bounds(pqs.q());
+	if(pqs.s() < bounds.first || pqs.s() > bounds.second){
+		return GroupWithMorphisms(0,0);
+	}
 	std::map<TrigradedIndex,GroupSequence>::iterator
         kers = kernels_.find(pqs);
 	std::map<TrigradedIndex,GroupSequence>::iterator
@@ -239,6 +264,10 @@ const GroupWithMorphisms SpectralSequence::get_e_ab(TrigradedIndex pqs, std::siz
 }
 
 const AbelianGroup SpectralSequence::get_e_2(TrigradedIndex pqs){
+	std::pair<std::size_t, std::size_t> bounds = get_bounds(pqs.q());
+	if(pqs.s() < bounds.first || pqs.s() > bounds.second){
+		return AbelianGroup(0,0);
+	}
 	std::map<TrigradedIndex,GroupSequence>::iterator
 	        kers = kernels_.find(pqs);
 	if(kers == kernels_.end()) {
@@ -249,6 +278,10 @@ const AbelianGroup SpectralSequence::get_e_2(TrigradedIndex pqs){
 }
 
 const AbelianGroup SpectralSequence::get_kernel(TrigradedIndex pqs, std::size_t r){
+	std::pair<std::size_t, std::size_t> bounds = get_bounds(pqs.q());
+	if(pqs.s() < bounds.first || pqs.s() > bounds.second){
+		return AbelianGroup(0,0);
+	}
 	std::map<TrigradedIndex,GroupSequence>::iterator
 			kers = kernels_.find(pqs);
 	if(kers == kernels_.end()) {
@@ -261,6 +294,10 @@ const AbelianGroup SpectralSequence::get_kernel(TrigradedIndex pqs, std::size_t 
 }
 
 const AbelianGroup SpectralSequence::get_cokernel(TrigradedIndex pqs, std::size_t r){
+	std::pair<std::size_t, std::size_t> bounds = get_bounds(pqs.q());
+	if(pqs.s() < bounds.first || pqs.s() > bounds.second){
+		return AbelianGroup(0,0);
+	}
 	std::map<TrigradedIndex,GroupSequence>::iterator
 			cokers = cokernels_.find(pqs);
 	if(cokers == cokernels_.end()) {
@@ -273,6 +310,10 @@ const AbelianGroup SpectralSequence::get_cokernel(TrigradedIndex pqs, std::size_
 }
 
 const MatrixQ SpectralSequence::get_inclusion(TrigradedIndex pqs, std::size_t r){
+	std::pair<std::size_t, std::size_t> bounds = get_bounds(pqs.q());
+	if(pqs.s() < bounds.first || pqs.s() > bounds.second){
+		return MatrixQ(0,0);
+	}
 	std::map<TrigradedIndex,GroupSequence>::iterator
 		kers = kernels_.find(pqs);
 	if(kers == kernels_.end()) {
@@ -286,6 +327,10 @@ const MatrixQ SpectralSequence::get_inclusion(TrigradedIndex pqs, std::size_t r)
 
 
 const MatrixQ SpectralSequence::get_projection(TrigradedIndex pqs, std::size_t r){
+	std::pair<std::size_t, std::size_t> bounds = get_bounds(pqs.q());
+	if(pqs.s() < bounds.first || pqs.s() > bounds.second){
+		return MatrixQ(0,0);
+	}
 	std::map<TrigradedIndex,GroupSequence>::iterator
 			cokers = cokernels_.find(pqs);
 	if(cokers == cokernels_.end()) {
@@ -298,6 +343,10 @@ const MatrixQ SpectralSequence::get_projection(TrigradedIndex pqs, std::size_t r
 }
 
 void SpectralSequence::set_e2(TrigradedIndex pqs, AbelianGroup grp){
+	std::pair<std::size_t, std::size_t> bounds = get_bounds(pqs.q());
+	if(pqs.s() < bounds.first || pqs.s() > bounds.second){
+		throw std::logic_error("SpectralSequence::set_e2: Group is already set.");
+	}
 	std::map<TrigradedIndex,GroupSequence>::iterator
         kers = kernels_.find(pqs);
 	if(kers != kernels_.end()) {

@@ -73,6 +73,17 @@ Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T>> lst)
 }
 
 template <typename T>
+Matrix<T>::Matrix(std::size_t height, std::size_t width, std::vector<T> entries)
+    : height_(height), width_(width)
+{
+  entries_.reserve(height_ * width_);
+
+  for (const T& value : entries) {
+      entries_.push_back(value);
+  }
+}
+
+template <typename T>
 template <template <typename> class E>
 Matrix<T>::Matrix(const MatrixExpression<T, E>&& expr)
     : height_(expr.height()), width_(expr.width())

@@ -2,24 +2,31 @@
 #include "spectral_sequence.h"
 #include "morphisms.h"
 
-GroupTask::GroupTask(SpectralSequence& sequence, const TrigradedIndex index)
- : sequence_(sequence), index_(index)
+
+
+GroupTask::GroupTask(SpectralSequence& sequence, const std::size_t p, const std::size_t q)
+ : sequence_(sequence), p_(p), q_(q)
 {
 }
 
 
 bool GroupTask::autosolve(){
-	AbelianGroup null_q_s = sequence_.get_e_2(TrigradedIndex(0,index_.q(),index_.s()));
+	std::pair<std::size_t,std::size_t> bounds = sequence_.get_bounds(q_);
 
-	int mon_rank; //compute rank of Z[l_i] in degree p here!
+	for(std::size_t s =bounds.first; s<= bounds.second; s++){
+		AbelianGroup null_q_s = sequence_.get_e_2(TrigradedIndex(0,q_,s));
 
-	AbelianGroup result(null_q_s.free_rank()*mon_rank, null_q_s.tor_rank()*mon_rank);
-	for(int i=0; i<null_q_s.tor_rank(); i++){
-		for(int j=0; j<mon_rank; j++){
-			result(i*mon_rank +j) = null_q_s(i);
+		int mon_rank; //compute rank of Z[l_i] in degree p here!
+
+		AbelianGroup result(null_q_s.free_rank()*mon_rank, null_q_s.tor_rank()*mon_rank);
+		for(int i=0; i<null_q_s.tor_rank(); i++){
+			for(int j=0; j<mon_rank; j++){
+				result(i*mon_rank +j) = null_q_s(i);
+			}
 		}
+		sequence_.set_e2(TrigradedIndex(p_,q_,s),result);
+
 	}
-	sequence_.set_e2(index_,result);
 	return true;
 }
 
