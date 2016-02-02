@@ -45,7 +45,7 @@ void GroupSequence::append(const std::size_t index, const AbelianGroup& grp,
     throw std::logic_error("GroupSequence::append: Index is already set");
   }
 
-  entries_.emplace(index, std::make_tuple(grp, map));
+  entries_.emplace(index, std::make_pair(grp, map));
   current_ = index;
 }
 
@@ -63,7 +63,7 @@ const AbelianGroup& GroupSequence::get_group(const std::size_t index)
   if (!done_ && index > current_) {
     throw std::logic_error("GroupSequence::get_group: Index is not yet set");
   }
-  std::map<std::size_t, std::tuple<AbelianGroup, MatrixQ>>::iterator pos =
+  std::map<std::size_t, std::pair<AbelianGroup, MatrixQ>>::iterator pos =
       entries_.upper_bound(index);
 
   return (std::get<0>(pos->second));
@@ -78,11 +78,14 @@ const MatrixQ& GroupSequence::get_matrix(const std::size_t index)
   if (!done_ && index > current_) {
     throw std::logic_error("GroupSequence::get_matrix: Index is not yet set");
   }
-  std::map<std::size_t, std::tuple<AbelianGroup, MatrixQ>>::iterator pos =
+  std::map<std::size_t, std::pair<AbelianGroup, MatrixQ>>::iterator pos =
       entries_.upper_bound(index);
 
   return (std::get<1>(pos->second));
 }
+
+
+
 
 std::size_t GroupSequence::get_current()
 {
@@ -173,6 +176,14 @@ void SpectralSequence::set_diff(TrigradedIndex pqs, std::size_t r, MatrixQ matri
 	}
 }
 
+const std::pair<std::size_t,std::size_t> SpectralSequence::get_bounds(std::size_t q){
+	std::map<std::size_t, std::pair<std::size_t,std::size_t>>::iterator bounds = bounds_.find(q);
+	if(bounds == bounds_.end()){
+		throw std::logic_error("SpectralSequence::get_bounds: Bounds not set.");
+	}
+	return bounds->second;
+}
+
 const MatrixQ SpectralSequence::get_diff_from(TrigradedIndex pqs, std::size_t r){
 	TrigradedIndex diff_offset(-r,r-1,1);
 	TrigradedIndex pqs_target = pqs+diff_offset;
@@ -181,12 +192,12 @@ const MatrixQ SpectralSequence::get_diff_from(TrigradedIndex pqs, std::size_t r)
 		return MatrixQ(0,0);
 	}
 
-	std::pair<std::size_t, std::size_t> bounds = get_bounds(pqs.q());
+	std::pair<std::size_t, std::size_t> bounds = get_bounds((std::size_t)pqs.q());
 	if(pqs.s() < bounds.first || pqs.s() > bounds.second){
 		return MatrixQ(0,0);
 	}
 
-	std::pair<std::size_t, std::size_t> bounds_target = get_bounds(pqs_target.q());
+	std::pair<std::size_t, std::size_t> bounds_target = get_bounds((std::size_t)pqs_target.q());
 	if(pqs_target.s() < bounds_target.first || pqs_target.s() > bounds_target.second){
 		return MatrixQ(0,0);
 	}
@@ -352,8 +363,10 @@ void SpectralSequence::set_e2(TrigradedIndex pqs, AbelianGroup grp){
 	if(kers != kernels_.end()) {
 		throw std::logic_error("SpectralSequence::set_e2: Group is already set.");
 	}
-	kernels_.emplace(pqs,2,grp);
-	cokernels_.emplace(pqs,2,grp);
+	GroupSequence ker2(2,grp);
+	GroupSequence coker2(2,grp);
+	kernels_.emplace(pqs,ker2);
+	cokernels_.emplace(pqs,ker2);
 }
 
 const std::size_t SpectralSequence::get_prime(){
