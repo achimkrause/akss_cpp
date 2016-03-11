@@ -1,5 +1,19 @@
 #include "session.h"
 
+SpectralSequence& Session::get_sequence()
+{
+  return sequence_;
+}
+
+std::size_t Session::get_monomial_rank(std::size_t p) const
+{
+  if (p % 2 == 0) {
+    return v_inclusions_[p / 2].height();
+  } else {
+    return 0;
+  }
+}
+
 void Session::parse_ranks(std::string path, std::size_t max_deg)
 {
   std::ifstream file;
@@ -26,7 +40,7 @@ void Session::parse_v_inclusions(std::string path, std::size_t max_deg)
           "Session::parse_v_inclusions: file syntax error in file " + path +
           ". Is max_deg bigger than the amount of matrices provided?");
     }
-    v_inclusions_.emplace(2 * i, matrix);
+    v_inclusions_.emplace_back(matrix);
   }
 }
 
@@ -92,8 +106,7 @@ void Session::generate_group_tasks()
   for (int p = 2; p <= current_q_ + 2;
        p++) {  // implicitly, p=1 is already 0! And for p=1, the needed (0,q_+1)
                // isn't known yet anyways.
-    GroupTask task(sequence_, p, current_q_ + 2 - p);
-    task_list_.emplace_back(task);
+    task_list_.emplace_back(new GroupTask(*this, p, current_q_ + 2 - p));
   }
 }
 
@@ -104,18 +117,16 @@ void Session::generate_differential_tasks(std::size_t r)
       std::pair<std::size_t, std::size_t> bounds =
           sequence_.get_bounds(current_q_ + 2 - p);
       for (int s = bounds.first; s <= bounds.second; s++) {
-        DifferentialTask task(sequence_,
-                              TrigradedIndex(p, current_q_ + 2 - p, s), r);
-        task_list_.emplace_back(task);
+        task_list_.emplace_back(new DifferentialTask(
+            *this, TrigradedIndex(p, current_q_ + 2 - p, s), r));
       }
     }
     if (current_q_ + 3 - p - r >= 0) {
       std::pair<std::size_t, std::size_t> bounds =
           sequence_.get_bounds(current_q_ + 3 - p - r);
       for (int s = bounds.first; s <= bounds.second; s++) {
-        DifferentialTask task(
-            sequence_, TrigradedIndex(p + r, current_q_ + 3 - p - r, s), r);
-        task_list_.emplace_back(task);
+        task_list_.emplace_back(new DifferentialTask(
+            *this, TrigradedIndex(p + r, current_q_ + 3 - p - r, s), r));
       }
     }
   }
@@ -124,16 +135,18 @@ void Session::generate_differential_tasks(std::size_t r)
 void Session::generate_extension_tasks()
 {
   for (int s = 1; s <= current_q_ + 1; s++) {
-    ExtensionTask task(sequence_, current_q_ + 1, s);
-    task_list_.emplace_back(task);
+    task_list_.emplace_back(new ExtensionTask(*this, current_q_ + 1, s));
   }
 }
 
 void Session::autosolve_tasks()
 {
-  for (Task t : task_list_) {
-    if (t.autosolve()) {
-      // todo: remove from list. how do we do this??
+  auto task_it = task_list_.begin();
+  while (task_it != task_list_.end()) {
+    if ((*task_it)->autosolve()) {
+      task_it = task_list_.erase(task_it);
+    } else {
+      ++task_it;
     }
   }
 }

@@ -1,58 +1,61 @@
 #pragma once
 
 #include <map>
+#include "session.h"
 #include "spectral_sequence.h"
 #include "morphisms.h"
+
+class Session;
 
 class Task
 {
  public:
-  bool autosolve();
+  Task(Session& session);
+  virtual ~Task() = default;
+  virtual bool autosolve() = 0;
 
- private:
-  // todo: find reasonable parent class for all Tasks.
+ protected:
+  Session& session_;
 };
 
-class GroupTask
+class GroupTask : public Task
 {
  public:
-  bool autosolve();
-  GroupTask(SpectralSequence& sequence, const std::size_t p,
+  GroupTask(Session& session, const std::size_t p,
             const std::size_t q);
+  virtual ~GroupTask() =default;
   // computes E^2_{p,q,s} from E^2_{0,q,s} by tensoring with degree p in Z[l_i]
+  bool autosolve() override;
+
  private:
-  SpectralSequence& sequence_;
-  // reference to shell
 
   std::size_t p_;
   std::size_t q_;
 };
 
-class DifferentialTask
+class DifferentialTask : public Task
 {
  public:
-  bool autosolve();
   // tries to compute the differential from (p,q,s) to (p-r,q+r-1,s+1) using
   // operations and
   // knowledge about the differential from (r,q,s) to (0,q+r-1,s+1).
   // If that doesn't work, it displays the partial info obtained,
   // requests a matrix from the shell.
-  DifferentialTask(SpectralSequence& sequence, TrigradedIndex index, int r);
+  DifferentialTask(Session& session, TrigradedIndex index, int r);
+  virtual ~DifferentialTask() = default;
+
+  bool autosolve() override;
 
  private:
-  SpectralSequence& sequence_;
-  // reference to shell
-
   TrigradedIndex index_;
   std::size_t r_;
   GroupWithMorphisms indeterminacy_;
   MatrixQ diff_candidate_;
 };
 
-class ExtensionTask
+class ExtensionTask : public Task
 {
  public:
-  bool autosolve();
   // gathers all the groups in degrees (n, q-n+1, s-1). If at most one of them
   // is nonzero,
   // fill in that group at (0,q,s) and take the differential to be the identity.
@@ -69,17 +72,17 @@ class ExtensionTask
   // gives the
   // correct E^\infty page entries.
 
-  ExtensionTask(SpectralSequence& sequence, int q, int s);
+  ExtensionTask(Session& session, int q, int s);
+  virtual ~ExtensionTask() = default;
+  bool autosolve() override;
 
  private:
-  SpectralSequence& sequence_;
-  // reference to shell
 
   std::size_t q_;
   std::size_t s_;
 
-//  GroupSequence groups_;
-//  MatrixQList differentials_;
+  //  GroupSequence groups_;
+  //  MatrixQList differentials_;
 
   std::map<int, AbelianGroup>
       list_groups_;  // the groups remaining after present differentials
