@@ -33,6 +33,7 @@ MatrixQ Session::get_v_inclusion(std::size_t p) const {
 void Session::parse_ranks(std::string path, std::size_t max_deg) {
 	std::ifstream file;
 	file.open(path);
+	eat_whitespace(file);
 	for (int i = 1; 2 * i <= max_deg; i++) {
 		mpz_class rank;
 		if (!parse_mpz_class(file, rank)) {
@@ -40,6 +41,7 @@ void Session::parse_ranks(std::string path, std::size_t max_deg) {
 					"Session::parse_ranks: file syntax error in file " + path
 							+ ". Is max_deg bigger than the amount of ranks provided?");
 		}
+		eat_whitespace(file);
 		ranks_.emplace_back(rank.get_ui());
 	}
 }
@@ -47,6 +49,7 @@ void Session::parse_ranks(std::string path, std::size_t max_deg) {
 void Session::parse_v_inclusions(std::string path, std::size_t max_deg) {
 	std::ifstream file;
 	file.open(path);
+	eat_whitespace(file);
 	for (int i = 1; 2 * i <= max_deg; i++) {
 		MatrixQ matrix;
 		if (!parse_matrix(file, matrix)) {
@@ -66,6 +69,7 @@ void Session::parse_r_operations(std::string path, std::size_t domain_deg) {
 	}
 	std::ifstream file;
 	file.open(path);
+	eat_whitespace(file);
 	for (int i = 1; 2 * i <= domain_deg - 2; i++) {
 		std::size_t rank = get_monomial_rank(domain_deg - 2 * i);
 
