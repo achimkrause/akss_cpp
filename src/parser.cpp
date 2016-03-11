@@ -88,12 +88,14 @@ bool parse_matrix(std::istream& str, MatrixQ& result)
   }
   MatrixQ result_tmp(height.get_ui(), width.get_ui());
 
+  mpq_class tmp;
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < height; j++) {
-      if (!parse_mpq_class(str, result_tmp(i, j))) {
+      if (!parse_mpq_class(str, tmp)) {
         str.seekg(pos);
         return false;
       }
+      result_tmp(i,j) = tmp;
       eat_whitespace(str);
     }
   }
