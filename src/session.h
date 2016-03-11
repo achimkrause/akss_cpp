@@ -21,6 +21,7 @@ class Session
 
   SpectralSequence& get_sequence();
   std::size_t get_monomial_rank(std::size_t p) const;
+  MatrixQ get_v_inclusion(std::size_t p) const;
 
  private:
   void parse_ranks(std::string path, std::size_t max_deg);

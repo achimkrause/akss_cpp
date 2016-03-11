@@ -60,7 +60,7 @@ bool ExtensionTask::autosolve()
     MatrixQ inclusion =
         sequence.get_inclusion(TrigradedIndex(q_ + 1, 0, 0), q_ + 1);
 
-    MatrixQ v_i_map(0, 0);  // TODO:get from nat's table
+    MatrixQ v_i_map = session_.get_v_inclusion(q_+1);
 
     MatrixQ matrix = lift_from_free(
         sequence.get_prime(), v_i_map, inclusion,

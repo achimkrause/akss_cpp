@@ -8,12 +8,25 @@ std::size_t Session::get_monomial_rank(std::size_t p) const {
 	if (p % 2 == 0) {
 		if (2 * ranks_.size() <= p) {
 			throw std::logic_error(
-					"Session::parse_r_operations: rank not set. Call parse_ranks before "
+					"Session::get_monomial_rank: rank not set. Call parse_ranks before "
 							"this.");
 		}
 		return ranks_[p / 2];
 	} else {
 		return 0;
+	}
+}
+
+MatrixQ Session::get_v_inclusion(std::size_t p) const {
+	if (p % 2 == 0) {
+		if (2 * v_inclusions_.size() <= p) {
+			throw std::logic_error(
+					"Session::get_v_inclusions: v_inclusions not set. Call parse_v_inclusions before "
+							"this.");
+		}
+		return v_inclusions_[p / 2];
+	} else {
+		return MatrixQ(0,0);
 	}
 }
 
@@ -77,6 +90,8 @@ void Session::init(std::string ranks_path, std::string v_inclusions_path,
 		parse_r_operations(r_operations_path_prefix + std::to_string(2 * i),
 				2 * i);
 	}
+	sequence_.set_e2(TrigradedIndex(0,0,0), AbelianGroup(1,0));
+	current_q_=0;
 }
 
 void Session::step() {
@@ -147,6 +162,9 @@ void Session::autosolve_tasks() {
 }
 
 void Session::user_solve_tasks() {
+	if(!task_list_.empty()){
+		throw std::logic_error("User-interaction needed.");
+	}
 	// call shell dialog with task list, which should eventually return a number
 	// then call solve on the corresponding task, again triggering a shell dialog
 	// this should eventually return a bool. If it is true, the task has been
