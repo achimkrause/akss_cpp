@@ -5,6 +5,7 @@
 
 struct GroupWithMorphisms {
  public:
+  GroupWithMorphisms() = default;
   GroupWithMorphisms(const std::size_t free_rank, const std::size_t tor_rank);
 
   AbelianGroup group;
@@ -23,8 +24,11 @@ GroupWithMorphisms compute_kernel(const std::size_t p, const MatrixQ& f,
                                   const MatrixQRefList& from_X_ref);
 
 GroupWithMorphisms compute_image(const std::size_t p, const MatrixQ& f,
-                                    const AbelianGroup& X,
-                                    const AbelianGroup& Y);
+                                 const AbelianGroup& X, const AbelianGroup& Y);
 
-bool morphism_equal(std::size_t p, const MatrixQ& f, const MatrixQ& g, const AbelianGroup& Y);
+MatrixQ lift_from_free(const std::size_t p, const MatrixQ& f,
+                       const MatrixQ& map, const AbelianGroup& Y);
+
+bool morphism_equal(std::size_t p, const MatrixQ& f, const MatrixQ& g,
+                    const AbelianGroup& Y);
 bool morphism_zero(std::size_t p, const MatrixQ& f, const AbelianGroup& Y);

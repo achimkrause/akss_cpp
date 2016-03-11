@@ -25,8 +25,11 @@ class TrigradedIndex
 
   friend bool operator==(const TrigradedIndex& a, const TrigradedIndex& b);
   friend bool operator<(const TrigradedIndex& a, const TrigradedIndex& b);
-  friend TrigradedIndex operator+(const TrigradedIndex&a, const TrigradedIndex& b);
-  friend TrigradedIndex operator-(const TrigradedIndex&a, const TrigradedIndex& b);
+  friend TrigradedIndex operator+(const TrigradedIndex& a,
+                                  const TrigradedIndex& b);
+  friend TrigradedIndex operator-(const TrigradedIndex& a,
+                                  const TrigradedIndex& b);
+
  private:
   const int p_;
   const int q_;
@@ -35,54 +38,59 @@ class TrigradedIndex
 
 bool operator==(const TrigradedIndex& a, const TrigradedIndex& b);
 bool operator<(const TrigradedIndex& a, const TrigradedIndex& b);
-TrigradedIndex operator+(const TrigradedIndex&a, const TrigradedIndex& b);
+TrigradedIndex operator+(const TrigradedIndex& a, const TrigradedIndex& b);
 
-class GroupSequence {
+class GroupSequence
+{
  public:
-	GroupSequence(const std::size_t index_min, const AbelianGroup& grp);
-	const AbelianGroup& get_group(const std::size_t index);
-	const MatrixQ& get_matrix(const std::size_t index);
-	void append(const std::size_t index, const AbelianGroup& grp, const MatrixQ& map);
-	void done();
-	std::size_t get_current();
-	void inc();
+  GroupSequence(const std::size_t index_min, const AbelianGroup& grp);
+  const AbelianGroup& get_group(const std::size_t index) const;
+  const MatrixQ& get_matrix(const std::size_t index) const;
+  void append(const std::size_t index, const AbelianGroup& grp,
+              const MatrixQ& map);
+  void done();
+  std::size_t get_current() const;
+  void inc();
 
  private:
-	bool done_;
-	std::map<std::size_t, std::pair<AbelianGroup,MatrixQ>> entries_;
-	std::size_t current_;
+  bool done_;
+  std::map<std::size_t, std::pair<AbelianGroup, MatrixQ>> entries_;
+  std::size_t current_;
 
-	//The matrix nr n represents the map between the group nr index_min and the n-th group.
-	//if number n is not set explicitly, but smaller than current,
-	//its value is given by the next smaller index.
-	//if done is set, arbitrarily large indices are allowed,
-	//and all higher things are treated as equal to the highest one that has been set explicitly.
+  // The matrix nr n represents the map between the group nr index_min and the
+  // n-th group.
+  // if number n is not set explicitly, but smaller than current,
+  // its value is given by the next smaller index.
+  // if done is set, arbitrarily large indices are allowed,
+  // and all higher things are treated as equal to the highest one that has been
+  // set explicitly.
 };
 
-class SpectralSequence {
+class SpectralSequence
+{
+ public:
+  void set_diff_zero(TrigradedIndex pqs, std::size_t r);
+  void set_diff(TrigradedIndex pqs, std::size_t r, MatrixQ matrix);
+  MatrixQ get_diff_from(TrigradedIndex pqs, std::size_t r) const;
+  MatrixQ get_diff_to(TrigradedIndex pqs, std::size_t r) const;
+  GroupWithMorphisms get_e_ab(TrigradedIndex pqs, std::size_t a,
+                                    std::size_t b) const;
+  AbelianGroup get_e_2(TrigradedIndex pqs) const;
+  AbelianGroup get_kernel(TrigradedIndex pqs, std::size_t r) const;
+  AbelianGroup get_cokernel(TrigradedIndex pqs, std::size_t r) const;
+  MatrixQ get_inclusion(TrigradedIndex pqs, std::size_t r) const;
+  MatrixQ get_projection(TrigradedIndex pqs, std::size_t r) const;
+  void set_e2(TrigradedIndex pqs, AbelianGroup grp);
+  std::size_t get_prime() const;
+  std::pair<std::size_t, std::size_t> get_bounds(std::size_t q) const;
+  void set_bounds(std::size_t q, std::size_t min_s, std::size_t max_s);
 
-public:
-	void set_diff_zero(TrigradedIndex pqs, std::size_t r);
-	void set_diff(TrigradedIndex pqs, std::size_t r, MatrixQ matrix);
-	const MatrixQ get_diff_from(TrigradedIndex pqs,std::size_t r);
-	const MatrixQ get_diff_to(TrigradedIndex pqs,std::size_t r);
-	const GroupWithMorphisms get_e_ab(TrigradedIndex pqs, std::size_t a, std::size_t b);
-	const AbelianGroup get_e_2(TrigradedIndex pqs);
-	const AbelianGroup get_kernel(TrigradedIndex pqs, std::size_t r);
-	const AbelianGroup get_cokernel(TrigradedIndex pqs, std::size_t r);
-	const MatrixQ get_inclusion(TrigradedIndex pqs, std::size_t r);
-	const MatrixQ get_projection(TrigradedIndex pqs, std::size_t r);
-	void set_e2(TrigradedIndex pqs, AbelianGroup grp);
-	const std::size_t get_prime();
-	const std::pair<std::size_t,std::size_t> get_bounds(std::size_t q);
-	void set_bounds(std::size_t q, std::size_t min_s, std::size_t max_s);
-private:
-	std::map<TrigradedIndex, GroupSequence> kernels_;
-	std::map<TrigradedIndex, GroupSequence> cokernels_;
-	std::map<TrigradedIndex, std::map<std::size_t, MatrixQ>> differentials_;
-	std::map<std::size_t, std::pair<std::size_t,std::size_t>> bounds_;
-	//const TrigradedIndex diff_offset_; oops, depends on r. Do we want a function object for that?
-	std::size_t prime_;
+ private:
+  std::map<TrigradedIndex, GroupSequence> kernels_;
+  std::map<TrigradedIndex, GroupSequence> cokernels_;
+  std::map<TrigradedIndex, std::map<std::size_t, MatrixQ>> differentials_;
+  std::map<std::size_t, std::pair<std::size_t, std::size_t>> bounds_;
+  // const TrigradedIndex diff_offset_; oops, depends on r. Do we want a
+  // function object for that?
+  std::size_t prime_;
 };
-
-

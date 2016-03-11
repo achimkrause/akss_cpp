@@ -79,7 +79,7 @@ Matrix<T>::Matrix(std::size_t height, std::size_t width, std::vector<T> entries)
   entries_.reserve(height_ * width_);
 
   for (const T& value : entries) {
-      entries_.push_back(value);
+    entries_.push_back(value);
   }
 }
 
@@ -95,6 +95,15 @@ Matrix<T>::Matrix(const MatrixExpression<T, E>&& expr)
       entries_.push_back(expr(i, j));
     }
   }
+}
+
+template <typename T>
+Matrix<T>& Matrix<T>::operator=(const Matrix<T>& other)
+{
+  height_ = other.height_;
+  width_ = other.width_;
+  entries_ = other.entries_;
+  return *this;
 }
 
 template <typename T>

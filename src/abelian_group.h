@@ -26,7 +26,7 @@ class AbelianGroup
   };
 
  public:
-  AbelianGroup();
+  AbelianGroup() = default;
   AbelianGroup(const std::size_t free_rank, const std::size_t tor_rank);
 
   inline OrderExponent operator()(const std::size_t i) const
@@ -51,12 +51,12 @@ class AbelianGroup
 
   inline std::size_t rank() const
   {
-	  return free_rank() + tor_rank();
+    return free_rank() + tor_rank();
   }
 
   TorsionMatrix<mpq_class> torsion_matrix(const std::size_t p) const;
 
  private:
-  const std::size_t free_rank_;
+  std::size_t free_rank_;
   std::vector<OrderExponent> orders_;
 };

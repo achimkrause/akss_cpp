@@ -72,6 +72,7 @@ template <typename T>
 class Matrix : public MatrixExpression<T, Matrix>
 {
  public:
+  Matrix() = default;
   Matrix(const std::size_t height, const std::size_t width);
   Matrix(std::initializer_list<std::initializer_list<T>> lst);
   Matrix(std::size_t height, std::size_t width, std::vector<T> entries);
@@ -112,8 +113,8 @@ class Matrix : public MatrixExpression<T, Matrix>
   Matrix<T>& col_swap(const std::size_t j1, const std::size_t j2);
 
  private:
-  const std::size_t height_;
-  const std::size_t width_;
+  std::size_t height_;
+  std::size_t width_;
   std::vector<T> entries_;
 };
 
