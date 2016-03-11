@@ -38,7 +38,7 @@ class Session
 
   std::size_t current_q_;
 
-  std::map<std::size_t, std::size_t> ranks_;
+  std::vector<std::size_t> ranks_;
   // at (p, k, i), we find the i'th operation from deg p to deg k.
   std::map<std::tuple<std::size_t, std::size_t, std::size_t>, MatrixQ>
       r_operations_;
