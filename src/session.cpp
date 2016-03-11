@@ -4,7 +4,7 @@ Session::Session(std::string ranks_path, std::string v_inclusions_path,
 		std::string r_operations_path_prefix, std::size_t max_deg) {
 	parse_ranks(ranks_path, max_deg);
 	parse_v_inclusions(v_inclusions_path, max_deg);
-	for (int i = 1; 2 * i <= max_deg; i++) {
+	for (int i = 2; 2 * i <= max_deg; i++) {
 		parse_r_operations(r_operations_path_prefix + std::to_string(2 * i),
 				2 * i);
 	}
