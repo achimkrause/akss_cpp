@@ -1,5 +1,17 @@
 #include "session.h"
 
+Session::Session(std::string ranks_path, std::string v_inclusions_path,
+		std::string r_operations_path_prefix, std::size_t max_deg) {
+	parse_ranks(ranks_path, max_deg);
+	parse_v_inclusions(v_inclusions_path, max_deg);
+	for (int i = 1; 2 * i <= max_deg; i++) {
+		parse_r_operations(r_operations_path_prefix + std::to_string(2 * i),
+				2 * i);
+	}
+	sequence_.set_e2(TrigradedIndex(0,0,0), AbelianGroup(1,0));
+	current_q_=0;
+}
+
 SpectralSequence& Session::get_sequence() {
 	return sequence_;
 }
@@ -82,17 +94,6 @@ void Session::parse_r_operations(std::string path, std::size_t domain_deg) {
 	}
 }
 
-void Session::Session(std::string ranks_path, std::string v_inclusions_path,
-		std::string r_operations_path_prefix, std::size_t max_deg) {
-	parse_ranks(ranks_path, max_deg);
-	parse_v_inclusions(v_inclusions_path, max_deg);
-	for (int i = 1; 2 * i <= max_deg; i++) {
-		parse_r_operations(r_operations_path_prefix + std::to_string(2 * i),
-				2 * i);
-	}
-	sequence_.set_e2(TrigradedIndex(0,0,0), AbelianGroup(1,0));
-	current_q_=0;
-}
 
 void Session::step() {
 	generate_group_tasks();

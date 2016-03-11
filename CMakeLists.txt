@@ -10,7 +10,7 @@ include_directories(src)
 find_package(GMP REQUIRED)
 
 enable_testing()
-add_test(NAME akss_test COMMAND akss_test)
+add_test(NAME akss_test COMMAND akss_test "${CMAKE_CURRENT_LIST_DIR}/test_data/")
 
 add_subdirectory(src)
 add_subdirectory(test)
