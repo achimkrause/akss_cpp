@@ -82,7 +82,7 @@ void Session::parse_r_operations(std::string path, std::size_t domain_deg) {
 	}
 }
 
-void Session::init(std::string ranks_path, std::string v_inclusions_path,
+void Session::Session(std::string ranks_path, std::string v_inclusions_path,
 		std::string r_operations_path_prefix, std::size_t max_deg) {
 	parse_ranks(ranks_path, max_deg);
 	parse_v_inclusions(v_inclusions_path, max_deg);

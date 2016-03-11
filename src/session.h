@@ -15,7 +15,7 @@ class Task;
 class Session
 {
  public:
-  void init(std::string ranks_path, std::string v_inclusions_path,
+  Session(std::string ranks_path, std::string v_inclusions_path,
             std::string r_operations_path_prefix, std::size_t max_deg);
   void step();
 
