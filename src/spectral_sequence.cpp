@@ -184,6 +184,16 @@ std::pair<std::size_t, std::size_t> SpectralSequence::get_bounds(
   return bounds->second;
 }
 
+void SpectralSequence::set_bounds(std::size_t q, std::size_t min_s, std::size_t max_s){
+  auto bounds = bounds_.find(q);
+  if(bounds == bounds_.end()){
+	  bounds_.emplace(q, min_s, max_s);
+  }
+  else{
+	  throw std::logic_error("SpectralSequence::set_bounds: Bounds already set.");
+  }
+}
+
 MatrixQ SpectralSequence::get_diff_from(TrigradedIndex pqs, std::size_t r) const
 {
   TrigradedIndex diff_offset(-r, r - 1, 1);
