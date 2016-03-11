@@ -65,7 +65,7 @@ public:
 	 //the spectral sequence once it is completed, because it is only valid if it gives the
 	 //correct E^\infty page entries.
 
-	ExtensionTask(SpectralSequence& sequence, int q, int s)
+	ExtensionTask(SpectralSequence& sequence, int q, int s);
 private:
 	SpectralSequence& sequence_;
     //reference to shell
