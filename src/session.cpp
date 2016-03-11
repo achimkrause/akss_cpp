@@ -8,6 +8,7 @@ Session::Session(std::string ranks_path, std::string v_inclusions_path,
 		parse_r_operations(r_operations_path_prefix + std::to_string(2 * i),
 				2 * i);
 	}
+  sequence_.set_bounds(0, 0, 0);
 	sequence_.set_e2(TrigradedIndex(0,0,0), AbelianGroup(1,0));
 	current_q_=0;
 }
