@@ -19,7 +19,7 @@ bool GroupTask::autosolve()
   for (std::size_t s = bounds.first; s <= bounds.second; s++) {
     AbelianGroup null_q_s = sequence.get_e_2(TrigradedIndex(0, q_, s));
 
-    int mon_rank;  // compute rank of Z[l_i] in degree p here!
+    std::size_t mon_rank;  // compute rank of Z[l_i] in degree p here!
 
     AbelianGroup result(null_q_s.free_rank() * mon_rank,
                         null_q_s.tor_rank() * mon_rank);

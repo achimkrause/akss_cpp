@@ -1,3 +1,9 @@
 #pragma once
 
-typedef std::size_t OrderExponent;
+#include <cstdlib>
+
+
+typedef std::size_t dim_t;
+typedef unsigned int mod_t;
+typedef int val_t;
+typedef unsigned long int u_val_t;

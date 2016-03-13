@@ -4,7 +4,7 @@
 #include "p_local.h"
 
 template <typename T>
-void smith_reduce_p(const std::size_t p, Matrix<T>& f, MatrixRefList<T>& to_X,
+void smith_reduce_p(const mod_t p, Matrix<T>& f, MatrixRefList<T>& to_X,
                     MatrixRefList<T>& from_X, MatrixRefList<T>& to_Y,
                     MatrixRefList<T>& from_Y)
 {
@@ -12,16 +12,16 @@ void smith_reduce_p(const std::size_t p, Matrix<T>& f, MatrixRefList<T>& to_X,
   to_Y.emplace_back(f);
 
   mpq_class lambda;
-  for (std::size_t diagonal_block_size = 0;
+  for (dim_t diagonal_block_size = 0;
        diagonal_block_size < std::min(f.height(), f.width());
        ++diagonal_block_size) {
-    std::size_t i_min = 0;
-    std::size_t j_min = 0;
+    dim_t i_min = 0;
+    dim_t j_min = 0;
     T min_value;
-    long min_valuation = 0;
+    val_t min_valuation = 0;
 
-    for (std::size_t i = diagonal_block_size; i < f.height(); ++i) {
-      for (std::size_t j = diagonal_block_size; j < f.width(); ++j) {
+    for (dim_t i = diagonal_block_size; i < f.height(); ++i) {
+      for (dim_t j = diagonal_block_size; j < f.width(); ++j) {
         if (f(i, j)) {
           if (!min_value || p_val_q(p, f(i, j)) < min_valuation) {
             i_min = i;
@@ -38,13 +38,13 @@ void smith_reduce_p(const std::size_t p, Matrix<T>& f, MatrixRefList<T>& to_X,
       throw std::logic_error(
           "smith_reduce_p: matrix entry has negative valuation");
 
-    for (std::size_t i = diagonal_block_size; i < f.height(); ++i) {
+    for (dim_t i = diagonal_block_size; i < f.height(); ++i) {
       if (i == i_min) continue;
       lambda = f(i, j_min) / min_value;
       basis_vectors_add(to_Y, from_Y, i, i_min, lambda);
     }
 
-    for (std::size_t j = diagonal_block_size; j < f.width(); ++j) {
+    for (dim_t j = diagonal_block_size; j < f.width(); ++j) {
       if (j == j_min) continue;
       lambda = -f(i_min, j) / min_value;
       basis_vectors_add(to_X, from_X, j_min, j, lambda);
@@ -53,7 +53,7 @@ void smith_reduce_p(const std::size_t p, Matrix<T>& f, MatrixRefList<T>& to_X,
     basis_vectors_swap(to_Y, from_Y, i_min, diagonal_block_size);
     basis_vectors_swap(to_X, from_X, j_min, diagonal_block_size);
 
-    lambda = p_pow_z(p, static_cast<std::size_t>(min_valuation)) / min_value;
+    lambda = p_pow_z(p, static_cast<u_val_t>(min_valuation)) / min_value;
     basis_vectors_mul(to_X, from_X, diagonal_block_size, lambda);
   }
 
