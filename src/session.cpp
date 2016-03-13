@@ -21,13 +21,17 @@ SpectralSequence& Session::get_sequence()
 
 dim_t Session::get_monomial_rank(deg_t p) const
 {
-  if (p % 2 == 0) {
-    if (2 * ranks_.size() <= p) {
+  if (p < 0) throw std::logic_error("Session::get_monomial_rank: p<0");
+
+  dim_t p_u = static_cast<dim_t>(p);
+
+  if (p_u % 2 == 0) {
+    if (2 * ranks_.size() <= p_u) {
       throw std::logic_error(
           "Session::get_monomial_rank: rank not set. Call parse_ranks before "
           "this.");
     }
-    return ranks_[p / 2];
+    return ranks_[p_u / 2];
   } else {
     return 0;
   }
@@ -35,14 +39,18 @@ dim_t Session::get_monomial_rank(deg_t p) const
 
 MatrixQ Session::get_v_inclusion(deg_t p) const
 {
-  if (p % 2 == 0) {
-    if (2 * v_inclusions_.size() <= p) {
+  if (p < 0) throw std::logic_error("Session::get_v_inclusion: p<0");
+
+  dim_t p_u = static_cast<dim_t>(p);
+
+  if (p_u % 2 == 0) {
+    if (2 * v_inclusions_.size() <= p_u) {
       throw std::logic_error(
           "Session::get_v_inclusions: v_inclusions not set. Call "
           "parse_v_inclusions before "
           "this.");
     }
-    return v_inclusions_[p / 2];
+    return v_inclusions_[p_u / 2];
   } else {
     return MatrixQ(0, 0);
   }
@@ -53,7 +61,7 @@ void Session::parse_ranks(std::string path, dim_t max_deg)
   std::ifstream file;
   file.open(path);
   eat_whitespace(file);
-  for (dim_t i = 1; 2 * i <= max_deg; i++) {
+  for (dim_t degree = 2; degree <= max_deg; degree += 2) {
     mpz_class rank;
     if (!parse_mpz_class(file, rank)) {
       throw std::logic_error(
@@ -70,7 +78,7 @@ void Session::parse_v_inclusions(std::string path, dim_t max_deg)
   std::ifstream file;
   file.open(path);
   eat_whitespace(file);
-  for (dim_t i = 1; 2 * i <= max_deg; i++) {
+  for (dim_t degree = 2; degree <= max_deg; degree += 2) {
     MatrixQ matrix;
     if (!parse_matrix(file, matrix)) {
       throw std::logic_error(
@@ -90,8 +98,9 @@ void Session::parse_r_operations(std::string path, dim_t domain_deg)
   std::ifstream file;
   file.open(path);
   eat_whitespace(file);
-  for (dim_t i = 1; 2 * i <= domain_deg - 2; i++) {
-    dim_t rank = get_monomial_rank(domain_deg - 2 * i);
+
+  for (dim_t target_deg = 2; target_deg <= domain_deg - 2; target_deg += 2) {
+    dim_t rank = get_monomial_rank(static_cast<deg_t>(domain_deg - target_deg));
 
     for (dim_t j = 0; j < rank; j++) {
       MatrixQ matrix;
@@ -99,7 +108,7 @@ void Session::parse_r_operations(std::string path, dim_t domain_deg)
         throw std::logic_error(
             "Session::parse_r_operations: file syntax error in file " + path);
       }
-      r_operations_.emplace(std::make_tuple(domain_deg, 2 * i, j), matrix);
+      r_operations_.emplace(std::make_tuple(domain_deg, target_deg, j), matrix);
     }
   }
 }
@@ -109,7 +118,8 @@ void Session::step()
   generate_group_tasks();
   autosolve_tasks();
 
-  for (dim_t r = 2; r <= current_q_ + 1; r++) {
+  // current_q_ is always non-negative
+  for (dim_t r = 2; r <= static_cast<dim_t>(current_q_ + 1); r++) {
     generate_differential_tasks(r);  // have to do them one page after another
                                      // here since they depend on each other.
     autosolve_tasks();
@@ -136,19 +146,22 @@ void Session::generate_group_tasks()
 void Session::generate_differential_tasks(dim_t r)
 {
   for (deg_t p = 2; p <= current_q_ + 2; p++) {
-    if (r <= p - 1) {
+    if (r <= static_cast<dim_t>(p - 1)) {
       std::pair<deg_t, deg_t> bounds = sequence_.get_bounds(current_q_ + 2 - p);
       for (deg_t s = bounds.first; s <= bounds.second; s++) {
         task_list_.emplace_back(new DifferentialTask(
             *this, TrigradedIndex(p, current_q_ + 2 - p, s), r));
       }
     }
-    if (current_q_ + 3 - p - r >= 0) {
+    if (r <= static_cast<dim_t>(current_q_ + 3 - p)) {
+      deg_t r_s = static_cast<deg_t>(r);
       std::pair<deg_t, deg_t> bounds =
-          sequence_.get_bounds(current_q_ + 3 - p - r);
+          sequence_.get_bounds(current_q_ + 3 - p - r_s);
       for (deg_t s = bounds.first; s <= bounds.second; s++) {
         task_list_.emplace_back(new DifferentialTask(
-            *this, TrigradedIndex(p + r, current_q_ + 3 - p - r, s), r));
+            *this, TrigradedIndex(
+                       p + r_s, current_q_ + 3 - p - r_s, s),
+            r));
       }
     }
   }

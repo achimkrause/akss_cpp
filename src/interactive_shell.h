@@ -19,7 +19,7 @@ class InteractiveShell
  public:
   void register_command(std::string name,
                         std::unique_ptr<ShellCommand> command);
-  void run();
+  [[noreturn]] void run();
 
  private:
   void execute(std::string name, const std::vector<std::string>& args);

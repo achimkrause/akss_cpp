@@ -9,4 +9,4 @@ typedef unsigned int mod_t;
 typedef int val_t;
 typedef unsigned long int u_val_t;
 
-typedef int deg_t;
+typedef long deg_t;
