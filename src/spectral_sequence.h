@@ -8,17 +8,17 @@
 class TrigradedIndex
 {
  public:
-  TrigradedIndex(const int p, const int q, const int s);
+  TrigradedIndex(const deg_t p, const deg_t q, const deg_t s);
 
-  inline int p() const
+  inline deg_t p() const
   {
     return p_;
   }
-  inline int q() const
+  inline deg_t q() const
   {
     return q_;
   }
-  inline int s() const
+  inline deg_t s() const
   {
     return s_;
   }
@@ -31,31 +31,32 @@ class TrigradedIndex
                                   const TrigradedIndex& b);
 
  private:
-  const int p_;
-  const int q_;
-  const int s_;
+  const deg_t p_;
+  const deg_t q_;
+  const deg_t s_;
 };
 
 bool operator==(const TrigradedIndex& a, const TrigradedIndex& b);
 bool operator<(const TrigradedIndex& a, const TrigradedIndex& b);
 TrigradedIndex operator+(const TrigradedIndex& a, const TrigradedIndex& b);
+TrigradedIndex source(const TrigradedIndex& pqs, dim_t r);
+TrigradedIndex target(const TrigradedIndex& pqs, dim_t r);
 
 class GroupSequence
 {
  public:
-  GroupSequence(const std::size_t index_min, const AbelianGroup& grp);
-  const AbelianGroup& get_group(const std::size_t index) const;
-  const MatrixQ& get_matrix(const std::size_t index) const;
-  void append(const std::size_t index, const AbelianGroup& grp,
-              const MatrixQ& map);
+  GroupSequence(const dim_t index_min, const AbelianGroup& grp);
+  const AbelianGroup& get_group(const dim_t index) const;
+  const MatrixQ& get_matrix(const dim_t index) const;
+  void append(const dim_t index, const AbelianGroup& grp, const MatrixQ& map);
   void done();
-  std::size_t get_current() const;
+  dim_t get_current() const;
   void inc();
 
  private:
   bool done_;
-  std::map<std::size_t, std::pair<AbelianGroup, MatrixQ>> entries_;
-  std::size_t current_;
+  std::map<dim_t, std::pair<AbelianGroup, MatrixQ>> entries_;
+  dim_t current_;
 
   // The matrix nr n represents the map between the group nr index_min and the
   // n-th group.
@@ -69,28 +70,27 @@ class GroupSequence
 class SpectralSequence
 {
  public:
-  void set_diff_zero(TrigradedIndex pqs, std::size_t r);
-  void set_diff(TrigradedIndex pqs, std::size_t r, MatrixQ matrix);
-  MatrixQ get_diff_from(TrigradedIndex pqs, std::size_t r) const;
-  MatrixQ get_diff_to(TrigradedIndex pqs, std::size_t r) const;
-  GroupWithMorphisms get_e_ab(TrigradedIndex pqs, std::size_t a,
-                                    std::size_t b) const;
+  void set_diff_zero(TrigradedIndex pqs, dim_t r);
+  void set_diff(TrigradedIndex pqs, dim_t r, MatrixQ matrix);
+  MatrixQ get_diff_from(TrigradedIndex pqs, dim_t r) const;
+  MatrixQ get_diff_to(TrigradedIndex pqs, dim_t r) const;
+  GroupWithMorphisms get_e_ab(TrigradedIndex pqs, dim_t a, dim_t b) const;
   AbelianGroup get_e_2(TrigradedIndex pqs) const;
-  AbelianGroup get_kernel(TrigradedIndex pqs, std::size_t r) const;
-  AbelianGroup get_cokernel(TrigradedIndex pqs, std::size_t r) const;
-  MatrixQ get_inclusion(TrigradedIndex pqs, std::size_t r) const;
-  MatrixQ get_projection(TrigradedIndex pqs, std::size_t r) const;
+  AbelianGroup get_kernel(TrigradedIndex pqs, dim_t r) const;
+  AbelianGroup get_cokernel(TrigradedIndex pqs, dim_t r) const;
+  MatrixQ get_inclusion(TrigradedIndex pqs, dim_t r) const;
+  MatrixQ get_projection(TrigradedIndex pqs, dim_t r) const;
   void set_e2(TrigradedIndex pqs, AbelianGroup grp);
-  std::size_t get_prime() const;
-  std::pair<std::size_t, std::size_t> get_bounds(std::size_t q) const;
-  void set_bounds(std::size_t q, std::size_t min_s, std::size_t max_s);
+  mod_t get_prime() const;
+  std::pair<deg_t, deg_t> get_bounds(deg_t q) const;
+  void set_bounds(deg_t q, deg_t min_s, deg_t max_s);
 
  private:
   std::map<TrigradedIndex, GroupSequence> kernels_;
   std::map<TrigradedIndex, GroupSequence> cokernels_;
-  std::map<TrigradedIndex, std::map<std::size_t, MatrixQ>> differentials_;
-  std::map<std::size_t, std::pair<std::size_t, std::size_t>> bounds_;
+  std::map<TrigradedIndex, std::map<dim_t, MatrixQ>> differentials_;
+  std::map<deg_t, std::pair<deg_t, deg_t>> bounds_;
   // const TrigradedIndex diff_offset_; oops, depends on r. Do we want a
   // function object for that?
-  std::size_t prime_;
+  mod_t prime_;
 };
