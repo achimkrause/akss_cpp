@@ -5,8 +5,9 @@
 #include <string>
 
 #include "matrix.h"
+#include "types.h"
 
-std::string read(std::istream &stream, std::size_t count);
+std::string read(std::istream &stream, std::streamsize count);
 
 bool parse_mpz_class(std::istream& str, mpz_class& result);
 bool parse_mpq_class(std::istream& str, mpq_class& result);
