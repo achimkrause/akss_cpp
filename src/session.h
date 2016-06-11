@@ -42,7 +42,7 @@ class Session
   std::vector<std::size_t> ranks_;
   // at (p, k, i), we find the i'th operation from deg p to deg k.
   std::map<std::tuple<std::size_t, std::size_t, std::size_t>, MatrixQ>
-      r_operations_;
+      r_operations_; // <domain, codomain, number>
   std::vector<MatrixQ> v_inclusions_;
 
   std::list<std::shared_ptr<Task>> task_list_;
