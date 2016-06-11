@@ -58,6 +58,7 @@ bool parse_mpq_class(std::istream& str, mpq_class& result)
     return false;
   }
   result = mpq_class(num, denom);
+  result.canonicalize();
   return true;
 }
 
