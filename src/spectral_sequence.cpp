@@ -77,6 +77,7 @@ const AbelianGroup& GroupSequence::get_group(const dim_t index) const
     throw std::logic_error("GroupSequence::get_group: Index is not yet set");
   }
   auto entries_it = entries_.upper_bound(index);
+  --entries_it;
 
   return entries_it->second.first;
 }
@@ -91,6 +92,7 @@ const MatrixQ& GroupSequence::get_matrix(const dim_t index) const
     throw std::logic_error("GroupSequence::get_matrix: Index is not yet set");
   }
   auto entries_it = entries_.upper_bound(index);
+  --entries_it;
 
   return entries_it->second.second;
 }

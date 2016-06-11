@@ -42,47 +42,53 @@ TEST(Kernel, Diagonal)
   EXPECT_EQ(0, K.group.free_rank());
   ASSERT_EQ(1, K.group.tor_rank());
   EXPECT_EQ(1, K.group(0));
+}
 
+TEST(Image, Diagonal)
+{
+  AbelianGroup X(0, 2);
+  X(0) = 2;
+  X(1) = 2;
+
+  AbelianGroup Y(0, 2);
+  Y(0) = 2;
+  Y(1) = 2;
+
+  MatrixQ f = {{0, 6}, {0, 0}};
+
+  MatrixQList from_X = {MatrixQ::identity(f.width())};
+  GroupWithMorphisms K = compute_kernel(3, f, X, Y, MatrixQRefList(), ref(from_X));
+  EXPECT_EQ(0, K.group.free_rank());
+  EXPECT_EQ(2, K.group.tor_rank());
+  EXPECT_EQ(1 + 2, K.group(0) + K.group(1));
+  EXPECT_EQ(1 * 2, K.group(0) * K.group(1));
+  MatrixQ expected = {{1, 0}, {0, 3}};
+  EXPECT_EQ(expected, from_X[0]);
+
+  GroupWithMorphisms I = compute_image(3, f, X, Y);
+
+  EXPECT_EQ(0, I.group.free_rank());
+  ASSERT_EQ(1, I.group.tor_rank());
+  EXPECT_EQ(1, I.group(0));
 }
 
 TEST(Morphism, Equal)
 {
-	MatrixQ f = {{2,1},{5,2}};
-	MatrixQ g = {{0,1},{1,2}};
-	AbelianGroup Y(0,2);
-	Y(0) = 1;
-	Y(1) = 2;
+  MatrixQ f = {{2, 1}, {5, 2}};
+  MatrixQ g = {{0, 1}, {1, 2}};
+  AbelianGroup Y(0, 2);
+  Y(0) = 1;
+  Y(1) = 2;
 
-	EXPECT_TRUE(morphism_equal(2,f,g,Y));
+  EXPECT_TRUE(morphism_equal(2, f, g, Y));
 }
 
-TEST(Morphism, Zero) {
-	AbelianGroup Y(0,2);
-	Y(0) = 1;
-	Y(1) = 2;
+TEST(Morphism, Zero)
+{
+  AbelianGroup Y(0, 2);
+  Y(0) = 1;
+  Y(1) = 2;
 
-	MatrixQ h = {{2,4,0},{12,0,8}};
-	EXPECT_TRUE(morphism_zero(2,h,Y));
-
+  MatrixQ h = {{2, 4, 0}, {12, 0, 8}};
+  EXPECT_TRUE(morphism_zero(2, h, Y));
 }
-
-
-//TEST(Image, Diagonal) {
-//	AbelianGroup X(0,2);
-//	X(0) = 2;
-//	X(1) = 2;
-//
-//	AbelianGroup Y(0,2);
-//	Y(0) = 2;
-//	Y(1) = 2;
-//
-//	MatrixQ f = {{0,6},{0,0}};
-//
-//	MatrixQList to_I;
-//	MatrixQList from_I;
-//	AbelianGroup I = compute_image(3,f,X,Y,to_I, from_I);
-//
-//	EXPECT_EQ(0,I.free_rank());
-//	ASSERT_EQ(1,I.tor_rank());
-//	EXPECT_EQ(1,I(0));
-//}

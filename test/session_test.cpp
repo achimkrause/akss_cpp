@@ -14,3 +14,13 @@ TEST(SessionInit, Parse)
                   TEST_DATA_PATH + "r_operations.dat.",
                   10);
 }
+
+TEST(SessionInit, Step)
+{
+  std::string TEST_DATA_PATH = TEST_DATA_DIR + "SessionInitParse/";
+  Session session(TEST_DATA_PATH + "ranks.dat",
+                  TEST_DATA_PATH + "v_inclusions.dat",
+                  TEST_DATA_PATH + "r_operations.dat.",
+                  10);
+  session.step();
+}

@@ -47,5 +47,5 @@ class Session
   std::map<std::tuple<deg_t, deg_t, dim_t>, MatrixQ> r_operations_;// <domain, codomain, number>
   std::vector<MatrixQ> v_inclusions_;
 
-  std::list<std::shared_ptr<Task>> task_list_;
+  std::list<std::unique_ptr<Task>> task_list_;
 };
