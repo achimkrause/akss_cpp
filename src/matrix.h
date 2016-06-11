@@ -9,6 +9,8 @@
 
 #include <gmpxx.h>
 
+#include "types.h"
+
 template <typename T, template <typename> class E>
 class MatrixExpression
 {
@@ -18,22 +20,22 @@ class MatrixExpression
   MatrixExpression<T, E>& operator=(const MatrixExpression<T, E>& other) =
       delete;
 
-  inline std::size_t height() const
+  inline dim_t height() const
   {
     return static_cast<const E<T>&>(*this).height();
   }
 
-  inline std::size_t width() const
+  inline dim_t width() const
   {
     return static_cast<const E<T>&>(*this).width();
   }
 
-  inline T operator()(const std::size_t i, const std::size_t j) const
+  inline T operator()(const dim_t i, const dim_t j) const
   {
     return static_cast<const E<T>&> (*this)(i, j);
   }
 
-  inline T& operator()(const std::size_t i, const std::size_t j)
+  inline T& operator()(const dim_t i, const dim_t j)
   {
     return static_cast<E<T>&> (*this)(i, j);
   }
@@ -53,16 +55,16 @@ template <typename T>
 class IdentityMatrix : public MatrixExpression<T, IdentityMatrix>
 {
  public:
-  IdentityMatrix(const std::size_t n);
+  IdentityMatrix(const dim_t n);
   IdentityMatrix(const IdentityMatrix<T>& other) = default;
 
-  std::size_t height() const;
-  std::size_t width() const;
+  dim_t height() const;
+  dim_t width() const;
 
-  T operator()(const std::size_t i, const std::size_t j) const;
+  T operator()(const dim_t i, const dim_t j) const;
 
  private:
-  std::size_t n_;
+  dim_t n_;
 };
 
 template <typename T>
@@ -73,9 +75,9 @@ class Matrix : public MatrixExpression<T, Matrix>
 {
  public:
   Matrix() = default;
-  Matrix(const std::size_t height, const std::size_t width);
+  Matrix(const dim_t height, const dim_t width);
   Matrix(std::initializer_list<std::initializer_list<T>> lst);
-  Matrix(std::size_t height, std::size_t width, std::vector<T> entries);
+  Matrix(dim_t height, dim_t width, std::vector<T> entries);
   Matrix(const Matrix<T>& other) = default;
   Matrix<T>& operator=(const Matrix<T>& other);
 
@@ -85,36 +87,36 @@ class Matrix : public MatrixExpression<T, Matrix>
   template <template <typename> class E>
   Matrix(const MatrixExpression<T, E>&& expr);
 
-  inline std::size_t height() const
+  inline dim_t height() const
   {
     return height_;
   }
-  inline std::size_t width() const
+  inline dim_t width() const
   {
     return width_;
   }
 
-  T operator()(const std::size_t i, const std::size_t j) const;
-  T& operator()(const std::size_t i, const std::size_t j);
+  T operator()(const dim_t i, const dim_t j) const;
+  T& operator()(const dim_t i, const dim_t j);
 
-  MatrixSlice<T> operator()(const std::size_t i, const std::size_t j,
-                            const std::size_t height, const std::size_t width);
+  MatrixSlice<T> operator()(const dim_t i, const dim_t j,
+                            const dim_t height, const dim_t width);
 
-  static IdentityMatrix<T> identity(const std::size_t n);
+  static IdentityMatrix<T> identity(const dim_t n);
 
-  Matrix<T>& row_add(const std::size_t i1, const std::size_t i2,
+  Matrix<T>& row_add(const dim_t i1, const dim_t i2,
                      const T& lambda);
-  Matrix<T>& row_mul(const std::size_t i, const T& lambda);
-  Matrix<T>& row_swap(const std::size_t i1, const std::size_t i2);
+  Matrix<T>& row_mul(const dim_t i, const T& lambda);
+  Matrix<T>& row_swap(const dim_t i1, const dim_t i2);
 
-  Matrix<T>& col_add(const std::size_t j1, const std::size_t j2,
+  Matrix<T>& col_add(const dim_t j1, const dim_t j2,
                      const T& lambda);
-  Matrix<T>& col_mul(const std::size_t j, const T& lambda);
-  Matrix<T>& col_swap(const std::size_t j1, const std::size_t j2);
+  Matrix<T>& col_mul(const dim_t j, const T& lambda);
+  Matrix<T>& col_swap(const dim_t j1, const dim_t j2);
 
  private:
-  std::size_t height_;
-  std::size_t width_;
+  dim_t height_;
+  dim_t width_;
   std::vector<T> entries_;
 };
 
@@ -122,8 +124,8 @@ template <typename T>
 class MatrixSlice : public MatrixExpression<T, MatrixSlice>
 {
  public:
-  MatrixSlice(Matrix<T>& mat, const std::size_t i, const std::size_t j,
-              const std::size_t height, const std::size_t width);
+  MatrixSlice(Matrix<T>& mat, const dim_t i, const dim_t j,
+              const dim_t height, const dim_t width);
   MatrixSlice(MatrixSlice<T>&& other) = default;
 
   MatrixSlice<T>& operator=(const MatrixSlice<T>& other);
@@ -131,25 +133,25 @@ class MatrixSlice : public MatrixExpression<T, MatrixSlice>
   template <template <typename> class E>
   MatrixSlice<T>& operator=(const MatrixExpression<T, E>& expr);
 
-  inline std::size_t height() const
+  inline dim_t height() const
   {
     return height_;
   }
 
-  inline std::size_t width() const
+  inline dim_t width() const
   {
     return width_;
   }
 
-  T operator()(const std::size_t i, const std::size_t j) const;
-  T& operator()(const std::size_t i, const std::size_t j);
+  T operator()(const dim_t i, const dim_t j) const;
+  T& operator()(const dim_t i, const dim_t j);
 
  private:
   Matrix<T>& mat_;
-  const std::size_t i_;
-  const std::size_t j_;
-  const std::size_t height_;
-  const std::size_t width_;
+  const dim_t i_;
+  const dim_t j_;
+  const dim_t height_;
+  const dim_t width_;
 };
 
 template <typename T>
@@ -161,14 +163,14 @@ using MatrixRefList = std::vector<MatrixRef<T>>;
 
 template <typename T>
 void basis_vectors_add(MatrixRefList<T>& to_X, MatrixRefList<T>& from_X,
-                       const std::size_t i1, const std::size_t i2,
+                       const dim_t i1, const dim_t i2,
                        const T& lambda);
 template <typename T>
 void basis_vectors_mul(MatrixRefList<T>& to_X, MatrixRefList<T>& from_X,
-                       const std::size_t i, const T& lambda);
+                       const dim_t i, const T& lambda);
 template <typename T>
 void basis_vectors_swap(MatrixRefList<T>& to_X, MatrixRefList<T>& from_X,
-                        const std::size_t i1, const std::size_t i2);
+                        const dim_t i1, const dim_t i2);
 
 using MatrixQ = Matrix<mpq_class>;
 using MatrixQList = MatrixList<mpq_class>;

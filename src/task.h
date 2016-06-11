@@ -1,9 +1,11 @@
 #pragma once
 
 #include <map>
+
 #include "session.h"
 #include "spectral_sequence.h"
 #include "morphisms.h"
+#include "types.h"
 
 class Session;
 
@@ -21,16 +23,14 @@ class Task
 class GroupTask : public Task
 {
  public:
-  GroupTask(Session& session, const std::size_t p,
-            const std::size_t q);
-  virtual ~GroupTask() =default;
+  GroupTask(Session& session, const deg_t p, const deg_t q);
+  virtual ~GroupTask() = default;
   // computes E^2_{p,q,s} from E^2_{0,q,s} by tensoring with degree p in Z[l_i]
   bool autosolve() override;
 
  private:
-
-  std::size_t p_;
-  std::size_t q_;
+  deg_t p_;
+  deg_t q_;
 };
 
 class DifferentialTask : public Task
@@ -41,14 +41,14 @@ class DifferentialTask : public Task
   // knowledge about the differential from (r,q,s) to (0,q+r-1,s+1).
   // If that doesn't work, it displays the partial info obtained,
   // requests a matrix from the shell.
-  DifferentialTask(Session& session, TrigradedIndex index, int r);
+  DifferentialTask(Session& session, TrigradedIndex index, dim_t r);
   virtual ~DifferentialTask() = default;
 
   bool autosolve() override;
 
  private:
   TrigradedIndex index_;
-  std::size_t r_;
+  dim_t r_;
   GroupWithMorphisms indeterminacy_;
   MatrixQ diff_candidate_;
 };
@@ -72,21 +72,22 @@ class ExtensionTask : public Task
   // gives the
   // correct E^\infty page entries.
 
-  ExtensionTask(Session& session, int q, int s);
+  ExtensionTask(Session& session, deg_t q, deg_t s);
   virtual ~ExtensionTask() = default;
   bool autosolve() override;
 
  private:
-
-  std::size_t q_;
-  std::size_t s_;
+  deg_t q_;
+  deg_t s_;
 
   //  GroupSequence groups_;
   //  MatrixQList differentials_;
 
-  std::map<int, AbelianGroup>
-      list_groups_;  // the groups remaining after present differentials
+  // the groups remaining after present differentials
   // of the form iterated kernel / subgrp
-  std::map<int, MatrixQ>
-      list_maps_;  // the maps iterated kernel -> iterated kernel/subgrp.
+
+  std::map<dim_t, AbelianGroup> list_groups_;
+
+  // the maps iterated kernel -> iterated kernel/subgrp.
+  std::map<dim_t, MatrixQ> list_maps_;
 };

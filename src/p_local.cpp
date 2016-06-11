@@ -1,12 +1,12 @@
-#include <exception>
+#include <limits>
 
 #include "p_local.h"
 
-std::size_t p_val_z(const std::size_t p, const mpz_class& x)
+val_t p_val_z(const mod_t p, const mpz_class& x)
 {
-  if (x == 0) throw std::logic_error("p_valuation: x=0");
+  if (x == 0) return std::numeric_limits<val_t>::max();
 
-  std::size_t val = 0;
+  val_t val = 0;
   mpz_class remainder = x;
 
   while (mpz_divisible_ui_p(remainder.get_mpz_t(), p)) {
@@ -17,29 +17,32 @@ std::size_t p_val_z(const std::size_t p, const mpz_class& x)
   return val;
 }
 
-long p_val_q(const std::size_t p, const mpq_class& x)
+val_t p_val_q(const mod_t p, const mpq_class& x)
 {
-  std::size_t num_valuation = p_val_z(p, x.get_num());
+  val_t num_valuation = p_val_z(p, x.get_num());
 
   if (num_valuation > 0)
-    return static_cast<long>(num_valuation);
+    return num_valuation;
   else
-    return -static_cast<long>(p_val_z(p, x.get_den()));
+    return -p_val_z(p, x.get_den());
 }
 
-mpz_class p_pow_z(const std::size_t p, const std::size_t exp)
+mpz_class p_pow_z(const mod_t p, const u_val_t exp)
 {
+  if (exp == std::numeric_limits<val_t>::max())
+    return 0_mpz;
+
   mpz_class pow;
   mpz_ui_pow_ui(pow.get_mpz_t(), p, exp);
   return pow;
 }
 
-mpq_class p_pow_q(const std::size_t p, const long exp)
+mpq_class p_pow_q(const mod_t p, const val_t exp)
 {
   if (exp >= 0)
-    return p_pow_z(p, static_cast<std::size_t>(exp));
+    return p_pow_z(p, static_cast<u_val_t>(exp));
   else {
-    mpq_class inv_pow = p_pow_z(p, static_cast<std::size_t>(-exp));
+    mpq_class inv_pow = p_pow_z(p, static_cast<u_val_t>(-exp));
     return 1 / inv_pow;
   }
 }
