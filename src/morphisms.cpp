@@ -175,7 +175,7 @@ MatrixQ lift_from_free(const mod_t p, const MatrixQ& f, const MatrixQ& map,
                        const AbelianGroup& Y)
 {
   MatrixQ rel_y_map(map.height(), Y.tor_rank() + map.width());
-  rel_y_map(0, 0, map.height(), Y.tor_rank()) = Y.torsion_matrix(p);
+  rel_y_map(Y.free_rank(), 0, map.height(), Y.tor_rank()) = Y.torsion_matrix(p);
   rel_y_map(0, Y.tor_rank(), map.height(), map.width()) = map;
 
   MatrixQ proj(map.width(), Y.tor_rank() + map.width());
