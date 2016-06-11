@@ -13,7 +13,7 @@ std::string read(std::istream& stream, std::streamsize count)
 
 bool parse_mpz_class(std::istream& str, mpz_class& result)
 {
-  std::istream::streampos pos = str.tellg();
+  const std::istream::streampos pos = str.tellg();
 
   std::streamsize n = 0;
   if (str.peek() == '-') {
@@ -41,7 +41,7 @@ bool parse_mpz_class(std::istream& str, mpz_class& result)
 
 bool parse_mpq_class(std::istream& str, mpq_class& result)
 {
-  std::istream::streampos pos = str.tellg();
+  const std::istream::streampos pos = str.tellg();
   mpz_class num;
   if (!parse_mpz_class(str, num)) {
     return false;
@@ -71,7 +71,7 @@ void eat_whitespace(std::istream& str)
 
 bool parse_matrix(std::istream& str, MatrixQ& result)
 {
-  std::istream::streampos pos = str.tellg();
+  const std::istream::streampos pos = str.tellg();
   mpz_class height;
   mpz_class width;
   if (!parse_mpz_class(str, height)) {
