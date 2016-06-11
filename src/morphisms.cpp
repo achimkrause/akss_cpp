@@ -150,14 +150,14 @@ GroupWithMorphisms compute_kernel(const mod_t p, const MatrixQ& f,
 GroupWithMorphisms compute_image(const mod_t p, const MatrixQ& f,
                                  const AbelianGroup& X, const AbelianGroup& Y)
 {
-  MatrixQRefList to_X;
+  MatrixQRefList to_X_dummy;
   MatrixQList from_X = {MatrixQ::identity(f.width())};
-  GroupWithMorphisms K = compute_kernel(p, f, X, Y, to_X, ref(from_X));
+  GroupWithMorphisms K = compute_kernel(p, f, X, Y, to_X_dummy, ref(from_X));
 
-  MatrixQList to_X_2 = {MatrixQ::identity(f.width())};
+  MatrixQRefList to_X_2_dummy;
   MatrixQList from_X_2 = {f};
   GroupWithMorphisms img =
-      compute_cokernel(p, f, Y, ref(to_X_2), ref(from_X_2));
+      compute_cokernel(p, from_X[0], Y, to_X_2_dummy, ref(from_X_2));
 
   return img;
 }
