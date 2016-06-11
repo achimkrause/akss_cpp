@@ -31,7 +31,7 @@ dim_t Session::get_monomial_rank(deg_t p) const
           "Session::get_monomial_rank: rank not set. Call parse_ranks before "
           "this.");
     }
-    return ranks_[p_u / 2];
+    return ranks_[p_u / 2 - 1];
   } else {
     return 0;
   }
@@ -97,6 +97,10 @@ void Session::parse_r_operations(std::string path, dim_t domain_deg)
   }
   std::ifstream file;
   file.open(path);
+  if (!file) {
+    throw std::logic_error("Session:parse_r_operations: file " + path + " not "
+        "found");
+  }
   eat_whitespace(file);
 
   for (dim_t target_deg = 2; target_deg <= domain_deg - 2; target_deg += 2) {
@@ -159,9 +163,7 @@ void Session::generate_differential_tasks(dim_t r)
           sequence_.get_bounds(current_q_ + 3 - p - r_s);
       for (deg_t s = bounds.first; s <= bounds.second; s++) {
         task_list_.emplace_back(new DifferentialTask(
-            *this, TrigradedIndex(
-                       p + r_s, current_q_ + 3 - p - r_s, s),
-            r));
+            *this, TrigradedIndex(p + r_s, current_q_ + 3 - p - r_s, s), r));
       }
     }
   }
