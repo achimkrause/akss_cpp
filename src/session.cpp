@@ -122,6 +122,8 @@ void Session::step()
   generate_group_tasks();
   autosolve_tasks();
 
+  sequence_.set_bounds(current_q_ + 1, 1, current_q_ + 1);
+
   // current_q_ is always non-negative
   for (dim_t r = 2; r <= static_cast<dim_t>(current_q_ + 1); r++) {
     generate_differential_tasks(r);  // have to do them one page after another
@@ -134,7 +136,7 @@ void Session::step()
   autosolve_tasks();
   user_solve_tasks();
 
-  sequence_.set_bounds(current_q_ + 1, 1, current_q_ + 1);
+
   current_q_++;
 }
 
