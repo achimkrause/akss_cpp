@@ -157,7 +157,7 @@ GroupWithMorphisms compute_image(const mod_t p, const MatrixQ& f,
   MatrixQRefList to_X_2_dummy;
   MatrixQList from_X_2 = {f};
   GroupWithMorphisms img =
-      compute_cokernel(p, from_X[0], Y, to_X_2_dummy, ref(from_X_2));
+      compute_cokernel(p, K.maps_from[0], Y, to_X_2_dummy, ref(from_X_2));
 
   return img;
 }
@@ -174,8 +174,12 @@ GroupWithMorphisms compute_image(const mod_t p, const MatrixQ& f,
 MatrixQ lift_from_free(const mod_t p, const MatrixQ& f, const MatrixQ& map,
                        const AbelianGroup& Y)
 {
+
+
   MatrixQ rel_y_map(map.height(), Y.tor_rank() + map.width());
-  rel_y_map(Y.free_rank(), 0, map.height(), Y.tor_rank()) = Y.torsion_matrix(p);
+
+  rel_y_map(Y.free_rank(), 0, Y.tor_rank(), Y.tor_rank()) = Y.torsion_matrix(p);
+
   rel_y_map(0, Y.tor_rank(), map.height(), map.width()) = map;
 
   MatrixQ proj(map.width(), Y.tor_rank() + map.width());
@@ -183,13 +187,14 @@ MatrixQ lift_from_free(const mod_t p, const MatrixQ& f, const MatrixQ& map,
       MatrixQ::identity(map.width());
 
   MatrixQ f_copy(f);
-  MatrixQList to_Y = {f_copy};
-  MatrixQList from_X = {proj};
 
   MatrixQRefList to_X_dummy;
   MatrixQRefList from_Y_dummy;
-  MatrixQRefList from_X_ref = ref(from_X);
-  MatrixQRefList to_Y_ref = ref(to_Y);
+  MatrixQRefList from_X_ref;
+  MatrixQRefList to_Y_ref;
+
+  from_X_ref.emplace_back(proj);
+  to_Y_ref.emplace_back(f_copy);
 
   smith_reduce_p(p, rel_y_map, to_X_dummy, from_X_ref, to_Y_ref, from_Y_dummy);
 
@@ -200,9 +205,10 @@ MatrixQ lift_from_free(const mod_t p, const MatrixQ& f, const MatrixQ& map,
          rel_y_map(d_max, d_max) != 0) {
     d_max++;
   }
+
   for (dim_t i = 0; i < d_max; i++) {
     for (dim_t j = 0; j < f.width(); j++) {
-      lift(i, j) = f_copy(i, j) / rel_y_map(d_max, d_max);
+      lift(i, j) = f_copy(i, j) / rel_y_map(i, i);
     }
   }
 
