@@ -151,3 +151,26 @@ TEST(MatrixSlice, Aliasing)
   EXPECT_THROW(A(3, 3, 2, 2) = A(3, 2, 2, 2), std::logic_error);
   EXPECT_NO_THROW(A(1, 3, 2, 2) = A(1, 1, 2, 2));
 }
+
+TEST(MatrixQRefList, Ref)
+{
+  MatrixQ f = {{1, 2}, {3, 4}};
+  MatrixQList list = {f};
+  MatrixQRefList ref_list = ref(list);
+  ref_list[0](0, 0, 2, 2) = MatrixQ({{1, 2}, {0, 3}});
+
+  MatrixQ f_exp = {{1, 2}, {0, 3}};
+  EXPECT_EQ(f_exp, list[0]);
+}
+
+TEST(MatrixQRefList, Deref)
+{
+  MatrixQ f = {{1, 2}, {3, 4}};
+  MatrixQList list = {f};
+  MatrixQRefList ref_list = ref(list);
+  MatrixQList deref_list = deref(ref_list);
+  ref_list[0](0, 0, 2, 2) = MatrixQ({{1, 2}, {0, 3}});
+
+  MatrixQ f_exp = {{1, 2}, {3, 4}};
+  EXPECT_EQ(f_exp, deref_list[0]);
+}
