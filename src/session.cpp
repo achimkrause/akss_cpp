@@ -133,10 +133,9 @@ void Session::step()
   }
 
   generate_extension_tasks();
+
   autosolve_tasks();
   user_solve_tasks();
-
-
   current_q_++;
 }
 
@@ -185,7 +184,7 @@ void Session::autosolve_tasks()
     if ((*task_it)->autosolve()) {
       task_it = task_list_.erase(task_it);
     } else {
-      ++task_it;
+      task_it++;
     }
   }
 }

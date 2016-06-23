@@ -67,12 +67,13 @@ bool ExtensionTask::autosolve()
         sequence.get_prime(), v_i_map, inclusion,
         iterated_kernel);  // compute lift of v_i_map along inclusion.
 
+    MatrixQ id = MatrixQ::identity(matrix.height());
     GroupWithMorphisms coker =
         compute_cokernel(sequence.get_prime(), matrix, iterated_kernel,
-                         MatrixQRefList(), MatrixQRefList());
+                         {id}, MatrixQRefList());
     list_groups_.insert(std::pair<deg_t, AbelianGroup>(q_ + 1, coker.group));
+    list_maps_.insert(std::pair<deg_t, MatrixQ>(q_ +1, coker.maps_to.front()));
   }
-
   if (list_groups_.size() == 0) {
     sequence.set_e2(TrigradedIndex(0, q_, s_), AbelianGroup(0, 0));
     for (dim_t i = 2; i <= next_q_u; i++) {
@@ -93,7 +94,6 @@ bool ExtensionTask::autosolve()
     // r-1'st kernel -> r-1'st kernel / image of all differentials
     sequence.set_diff(source(TrigradedIndex(0, q_, s_), r), r,
                       list_maps_.begin()->second);
-
     // and the rest 0.
     for (dim_t i = r + 1; i <= next_q_u; i++) {
       sequence.set_diff_zero(source(TrigradedIndex(0, q_, s_), i), i);
