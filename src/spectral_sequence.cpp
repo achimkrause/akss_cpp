@@ -32,14 +32,14 @@ TrigradedIndex operator-(const TrigradedIndex& a, const TrigradedIndex& b)
 
 TrigradedIndex source(const TrigradedIndex& pqs, dim_t r)
 {
-  static TrigradedIndex diff_offset(-static_cast<deg_t>(r),
+  const TrigradedIndex diff_offset(-static_cast<deg_t>(r),
                                     static_cast<deg_t>(r) - 1, 1);
   return pqs - diff_offset;
 }
 
 TrigradedIndex target(const TrigradedIndex& pqs, dim_t r)
 {
-  static TrigradedIndex diff_offset(-static_cast<deg_t>(r),
+  const TrigradedIndex diff_offset(-static_cast<deg_t>(r),
                                     static_cast<deg_t>(r) - 1, 1);
   return pqs + diff_offset;
 }

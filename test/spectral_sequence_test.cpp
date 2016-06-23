@@ -24,6 +24,20 @@ TEST(TrigradedIndex, LessThan)
   EXPECT_LT(ind_4, ind_5);
 }
 
+TEST(TrigradedIndex, Source)
+{
+  TrigradedIndex ind(0, 1, 1);
+  TrigradedIndex ind_exp(2, 0, 0);
+  EXPECT_EQ(ind_exp, source(ind, 2));
+}
+
+TEST(TrigradedIndex, Target)
+{
+  TrigradedIndex ind(2, 0, 0);
+  TrigradedIndex ind_exp(0, 1, 1);
+  EXPECT_EQ(ind_exp, target(ind, 2));
+}
+
 TEST(GroupSequence, GetGroup)
 {
   GroupSequence seq(2, AbelianGroup(2, 0));
