@@ -39,6 +39,7 @@ class TrigradedIndex
 bool operator==(const TrigradedIndex& a, const TrigradedIndex& b);
 bool operator<(const TrigradedIndex& a, const TrigradedIndex& b);
 TrigradedIndex operator+(const TrigradedIndex& a, const TrigradedIndex& b);
+TrigradedIndex operator-(const TrigradedIndex& a, const TrigradedIndex& b);
 TrigradedIndex source(const TrigradedIndex& pqs, dim_t r);
 TrigradedIndex target(const TrigradedIndex& pqs, dim_t r);
 
