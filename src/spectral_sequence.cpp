@@ -322,7 +322,7 @@ AbelianGroup SpectralSequence::get_kernel(TrigradedIndex pqs, dim_t r) const
   }
   auto kers_it = kernels_.find(pqs);
   if (kers_it == kernels_.end()) {
-    throw std::logic_error("SpectralSequence::get_kernel: Group is not set.");
+    throw (std::logic_error() << "SpectralSequence::get_kernel: Group at " << pqs << " is not set.");
   }
   if (kers_it->second.get_current() < r) {
     throw std::logic_error(
@@ -339,7 +339,7 @@ AbelianGroup SpectralSequence::get_cokernel(TrigradedIndex pqs, dim_t r) const
   }
   auto cokers_it = cokernels_.find(pqs);
   if (cokers_it == cokernels_.end()) {
-    throw std::logic_error("SpectralSequence::get_cokernel: Group is not set.");
+    throw (std::logic_error() << "SpectralSequence::get_cokernel: Group at " << pqs << " is not set.");
   }
   if (cokers_it->second.get_current() < r) {
     throw std::logic_error(

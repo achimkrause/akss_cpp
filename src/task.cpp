@@ -139,7 +139,7 @@ bool DifferentialTask::autosolve()
   AbelianGroup er_left_img = sequence.get_cokernel(
       TrigradedIndex(0, index_.q() + r_s - 1, index_.s() + 1), r_);
   MatrixQ projection_left_img = sequence.get_projection(
-      TrigradedIndex(0, index_.q() + r_s + 1, index_.s() + 1), r_);
+      TrigradedIndex(0, index_.q() + r_s - 1, index_.s() + 1), r_);
 
   MatrixQ diff_left =
       sequence.get_diff_from(TrigradedIndex(r_s, index_.q(), index_.s()), r_);
