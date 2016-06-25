@@ -143,7 +143,10 @@ void Session::generate_group_tasks()
 {
   task_list_.emplace_back(new GroupTask(*this, 1, current_q_));
   task_list_.emplace_back(new GroupTask(*this, 2, current_q_));
-  for (deg_t p = 3; p <= current_q_ + 3; p++) {
+  if(current_q_ > 0) {
+    task_list_.emplace_back(new GroupTask(*this, 3, current_q_-1));
+  }
+  for (deg_t p = 4; p <= current_q_ + 3; p++) {
     task_list_.emplace_back(new GroupTask(*this, p, current_q_ + 3 - p));
   }
 }
