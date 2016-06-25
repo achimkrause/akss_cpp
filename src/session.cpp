@@ -141,10 +141,10 @@ void Session::step()
 
 void Session::generate_group_tasks()
 {
-  for (deg_t p = 2; p <= current_q_ + 2; p++) {
-    // implicitly, p=1 is already 0! And for p=1, the needed (0,q_+1)
-    // isn't known yet anyways.
-    task_list_.emplace_back(new GroupTask(*this, p, current_q_ + 2 - p));
+  task_list_.emplace_back(new GroupTask(*this, 1, current_q_));
+  task_list_.emplace_back(new GroupTask(*this, 2, current_q_));
+  for (deg_t p = 3; p <= current_q_ + 3; p++) {
+    task_list_.emplace_back(new GroupTask(*this, p, current_q_ + 3 - p));
   }
 }
 
