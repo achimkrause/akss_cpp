@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <map>
 #include <vector>
 #include "abelian_group.h"
@@ -36,6 +37,7 @@ class TrigradedIndex
   const deg_t s_;
 };
 
+std::ostream& operator<<(std::ostream& stream, const TrigradedIndex& pqs);
 bool operator==(const TrigradedIndex& a, const TrigradedIndex& b);
 bool operator<(const TrigradedIndex& a, const TrigradedIndex& b);
 TrigradedIndex operator+(const TrigradedIndex& a, const TrigradedIndex& b);

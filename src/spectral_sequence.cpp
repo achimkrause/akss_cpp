@@ -20,6 +20,12 @@ bool operator<(const TrigradedIndex& a, const TrigradedIndex& b)
   return std::tie(a_deg, a.p_, a.s_) < std::tie(b_deg, b.p_, b.s_);
 }
 
+std::ostream& operator<<(std::ostream& stream, const TrigradedIndex& pqs)
+{
+  stream << "(" + pqs.p() << ", " << pqs.q() << ", " << pqs.s() << ")";
+  return stream;
+}
+
 TrigradedIndex operator+(const TrigradedIndex& a, const TrigradedIndex& b)
 {
   return TrigradedIndex(a.p_ + b.p_, a.q_ + b.q_, a.s_ + b.s_);
@@ -33,14 +39,14 @@ TrigradedIndex operator-(const TrigradedIndex& a, const TrigradedIndex& b)
 TrigradedIndex source(const TrigradedIndex& pqs, dim_t r)
 {
   const TrigradedIndex diff_offset(-static_cast<deg_t>(r),
-                                    static_cast<deg_t>(r) - 1, 1);
+                                   static_cast<deg_t>(r) - 1, 1);
   return pqs - diff_offset;
 }
 
 TrigradedIndex target(const TrigradedIndex& pqs, dim_t r)
 {
   const TrigradedIndex diff_offset(-static_cast<deg_t>(r),
-                                    static_cast<deg_t>(r) - 1, 1);
+                                   static_cast<deg_t>(r) - 1, 1);
   return pqs + diff_offset;
 }
 
