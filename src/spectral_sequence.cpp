@@ -22,7 +22,7 @@ bool operator<(const TrigradedIndex& a, const TrigradedIndex& b)
 
 std::ostream& operator<<(std::ostream& stream, const TrigradedIndex& pqs)
 {
-  stream << "(" + pqs.p() << ", " << pqs.q() << ", " << pqs.s() << ")";
+  stream << "(" << pqs.p() << ", " << pqs.q() << ", " << pqs.s() << ")";
   return stream;
 }
 
