@@ -116,27 +116,34 @@ void GroupSequence::inc()
 
 void SpectralSequence::set_diff_zero(TrigradedIndex pqs, dim_t r)
 {
-  auto kers_it = kernels_.find(pqs);
-  auto cokers_it = cokernels_.find(target(pqs, r));
-  if (kers_it == kernels_.end()) {
-    throw std::logic_error(
-        "SpectralSequence::set_diff_zero: Kernel is not set.");
-  }
-  if (cokers_it == cokernels_.end()) {
-    throw std::logic_error(
-        "SpectralSequence::set_diff_zero: Cokernel is not set.");
-  }
-  if (kers_it->second.get_current() != r) {
-    throw std::logic_error(
-        "SpectralSequence::set_diff_zero: Kernel is at wrong r.");
-  }
-  if (cokers_it->second.get_current() != r) {
-    throw std::logic_error(
-        "SpectralSequence::set_diff_zero: Cokernel is at wrong r.");
-  }
+    std::pair<deg_t, deg_t> bounds_ker = get_bounds(pqs.q());
+    std::pair<deg_t, deg_t> bounds_coker = get_bounds(pqs.q() + r -1);
 
-  kers_it->second.inc();
-  cokers_it->second.inc();
+    if(bounds_ker.first <= pqs.s() && bounds_ker.second >= pqs.s()){
+        auto kers_it = kernels_.find(pqs);
+        if (kers_it == kernels_.end()) {
+            std::stringstream str;
+            str << "SpectralSequence::set_diff_zero: Kernel at " << pqs << " is not set.";
+            throw std::logic_error(str.str());
+        }
+        if (kers_it->second.get_current() != r) {
+            throw std::logic_error(
+                    "SpectralSequence::set_diff_zero: Kernel is at wrong r.");
+        }
+        kers_it->second.inc();
+    }
+    if(bounds_coker.first <= pqs.s()+1 && bounds_coker.second >= pqs.s()+1){
+        auto cokers_it = cokernels_.find(target(pqs, r));
+        if (cokers_it == cokernels_.end()) {
+            throw std::logic_error(
+                    "SpectralSequence::set_diff_zero: Cokernel is not set.");
+        }
+        if (cokers_it->second.get_current() != r) {
+            throw std::logic_error(
+                    "SpectralSequence::set_diff_zero: Cokernel is at wrong r.");
+        }
+        cokers_it->second.inc();
+    }
 }
 
 void SpectralSequence::set_diff(TrigradedIndex pqs, dim_t r, MatrixQ matrix)

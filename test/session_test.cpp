@@ -33,5 +33,6 @@ TEST(SessionInit, TwoSteps)
                   TEST_DATA_PATH + "r_operations.dat.",
                   10);
   session.step();
+  //std::cerr << session.get_sequence().get_e_2(TrigradedIndex(0,1,1)).tor_rank() << "\n";
   session.step();
 }

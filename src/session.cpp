@@ -50,7 +50,7 @@ MatrixQ Session::get_v_inclusion(deg_t p) const
           "parse_v_inclusions before "
           "this.");
     }
-    return v_inclusions_[p_u / 2];
+    return v_inclusions_[p_u / 2 -1];
   } else {
     return MatrixQ(0, 0);
   }

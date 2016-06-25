@@ -53,7 +53,7 @@ bool ExtensionTask::autosolve()
       list_maps_.emplace(n, eab.maps_to.front());
     }
   }
-
+  //TODO: Hier gibt sequence.get_prime() sehr weirdes zeug zurueck. Macht alles darunter sehr kaputt. (Z.b. kommt als cokern von x2 unten 0 raus)
   // now, for n=q_+1, s=1, we have to compute e_ab mod the v_n.
   if (s_ == 1) {
     AbelianGroup iterated_kernel =
@@ -62,17 +62,17 @@ bool ExtensionTask::autosolve()
         sequence.get_inclusion(TrigradedIndex(q_ + 1, 0, 0), next_q_u);
 
     MatrixQ v_i_map = session_.get_v_inclusion(q_ + 1);
-
     MatrixQ matrix = lift_from_free(
         sequence.get_prime(), v_i_map, inclusion,
         iterated_kernel);  // compute lift of v_i_map along inclusion.
-
     MatrixQ id = MatrixQ::identity(matrix.height());
     GroupWithMorphisms coker =
         compute_cokernel(sequence.get_prime(), matrix, iterated_kernel,
                          {id}, MatrixQRefList());
-    list_groups_.insert(std::pair<deg_t, AbelianGroup>(q_ + 1, coker.group));
-    list_maps_.insert(std::pair<deg_t, MatrixQ>(q_ +1, coker.maps_to.front()));
+    if(coker.group.rank() > 0){
+      list_groups_.insert(std::pair<deg_t, AbelianGroup>(q_ + 1, coker.group));
+      list_maps_.insert(std::pair<deg_t, MatrixQ>(q_ +1, coker.maps_to.front()));
+    }
   }
   if (list_groups_.size() == 0) {
     sequence.set_e2(TrigradedIndex(0, q_, s_), AbelianGroup(0, 0));
@@ -194,7 +194,7 @@ bool DifferentialTask::autosolve()
   }
 
   MatrixQ projection_right_img = sequence.get_projection(
-      TrigradedIndex(index_.p() - r_s, index_.q() - r_s + 1, index_.s() + 1),
+      TrigradedIndex(index_.p() - r_s, index_.q() + r_s - 1, index_.s() + 1),
       r_);
 
   diff_candidate_ = projection_right_img * result_lift;
