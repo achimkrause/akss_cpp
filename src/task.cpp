@@ -164,9 +164,9 @@ bool DifferentialTask::autosolve()
       sequence.get_inclusion(TrigradedIndex(r_s, index_.q(), index_.s()), r_);
 
   for (dim_t i = 0; i < mon_rank; i++) {
-    // obtain the i_th operation from degree p to degree r here from nat's
-    // tables.
-    MatrixQ r_I;
+    //r_ is both the page number and the p of the transgression
+    MatrixQ r_I = session_.get_r_operations(index_.p(), static_cast<deg_t>(r_),
+        i);
     // obtain the tensor product A\otimes r_I, where A is the group e2_0_q_s.
     MatrixQ r_I_q(r_I.height() * e2_0_q_s.rank(),
                   r_I.width() * e2_0_q_s.rank());

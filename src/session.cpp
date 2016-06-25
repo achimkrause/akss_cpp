@@ -56,6 +56,11 @@ MatrixQ Session::get_v_inclusion(deg_t p) const
   }
 }
 
+MatrixQ Session::get_r_operations(deg_t source, deg_t target, dim_t index) const
+{
+  return r_operations_.at(std::make_tuple(source, target, index));
+}
+
 void Session::parse_ranks(std::string path, dim_t max_deg)
 {
   std::ifstream file;
