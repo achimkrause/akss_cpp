@@ -1,6 +1,6 @@
-#include "task.h"
-#include "spectral_sequence.h"
 #include "morphisms.h"
+#include "spectral_sequence.h"
+#include "task.h"
 
 Task::Task(Session& session) : session_(session)
 {
@@ -53,7 +53,6 @@ bool ExtensionTask::autosolve()
       list_maps_.emplace(n, eab.maps_to.front());
     }
   }
-  //TODO: Hier gibt sequence.get_prime() sehr weirdes zeug zurueck. Macht alles darunter sehr kaputt. (Z.b. kommt als cokern von x2 unten 0 raus)
   // now, for n=q_+1, s=1, we have to compute e_ab mod the v_n.
   if (s_ == 1) {
     AbelianGroup iterated_kernel =
@@ -66,12 +65,12 @@ bool ExtensionTask::autosolve()
         sequence.get_prime(), v_i_map, inclusion,
         iterated_kernel);  // compute lift of v_i_map along inclusion.
     MatrixQ id = MatrixQ::identity(matrix.height());
-    GroupWithMorphisms coker =
-        compute_cokernel(sequence.get_prime(), matrix, iterated_kernel,
-                         {id}, MatrixQRefList());
-    if(coker.group.rank() > 0){
+    GroupWithMorphisms coker = compute_cokernel(
+        sequence.get_prime(), matrix, iterated_kernel, {id}, MatrixQRefList());
+    if (coker.group.rank() > 0) {
       list_groups_.insert(std::pair<deg_t, AbelianGroup>(q_ + 1, coker.group));
-      list_maps_.insert(std::pair<deg_t, MatrixQ>(q_ +1, coker.maps_to.front()));
+      list_maps_.insert(
+          std::pair<deg_t, MatrixQ>(q_ + 1, coker.maps_to.front()));
     }
   }
   if (list_groups_.size() == 0) {
@@ -164,9 +163,9 @@ bool DifferentialTask::autosolve()
       sequence.get_inclusion(TrigradedIndex(r_s, index_.q(), index_.s()), r_);
 
   for (dim_t i = 0; i < mon_rank; i++) {
-    //r_ is both the page number and the p of the transgression
-    MatrixQ r_I = session_.get_r_operations(index_.p(), static_cast<deg_t>(r_),
-        i);
+    // r_ is both the page number and the p of the transgression
+    MatrixQ r_I =
+        session_.get_r_operations(index_.p(), static_cast<deg_t>(r_), i);
     // obtain the tensor product A\otimes r_I, where A is the group e2_0_q_s.
     MatrixQ r_I_q(r_I.height() * e2_0_q_s.rank(),
                   r_I.width() * e2_0_q_s.rank());
