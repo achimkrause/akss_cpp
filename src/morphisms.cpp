@@ -16,6 +16,7 @@ GroupWithMorphisms compute_cokernel(const mod_t p, const MatrixQ& f,
                                     const MatrixQRefList& to_Y_ref,
                                     const MatrixQRefList& from_Y_ref)
 {
+
   MatrixQ f_rel_Y(f.height(), f.width() + Y.tor_rank());
   f_rel_Y(0, 0, f.height(), f.width()) = f;
   f_rel_Y(0, f.width(), Y.tor_rank(), Y.tor_rank()) = Y.torsion_matrix(p);
@@ -154,10 +155,10 @@ GroupWithMorphisms compute_image(const mod_t p, const MatrixQ& f,
   MatrixQList from_X = {MatrixQ::identity(f.width())};
   GroupWithMorphisms K = compute_kernel(p, f, X, Y, to_X_dummy, ref(from_X));
 
-  MatrixQRefList to_X_2_dummy;
+  MatrixQList to_X_2 =  {MatrixQ::identity(X.rank())};
   MatrixQList from_X_2 = {f};
   GroupWithMorphisms img =
-      compute_cokernel(p, K.maps_from[0], Y, to_X_2_dummy, ref(from_X_2));
+      compute_cokernel(p, K.maps_from[0], X, ref(to_X_2), ref(from_X_2));
 
   return img;
 }

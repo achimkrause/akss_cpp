@@ -42,7 +42,7 @@ bool ExtensionTask::autosolve()
 {
   SpectralSequence& sequence = session_.get_sequence();
   dim_t next_q_u = static_cast<dim_t>(q_ + 1);
-  for (dim_t n = 1; n <= next_q_u - 1; n++) {
+  for (dim_t n = 2; n <= next_q_u - 1; n++) {
     // take the term at (n,q-n+1,s-1) taking into account differentials up to
     // n-1 leaving,
     // and differentials up to q-n+2 entering.
@@ -200,7 +200,7 @@ bool DifferentialTask::autosolve()
   diff_candidate_ = projection_right_img * result_lift;
 
   // now also determine indeterminacy:
-  MatrixQ id = IdentityMatrix<mpq_class>(projection_right_img.width());
+  MatrixQ id = IdentityMatrix<mpq_class>(projection_left_img.width());
   MatrixQList from_X;
   from_X.emplace_back(id);
   GroupWithMorphisms ker_proj_morphisms =

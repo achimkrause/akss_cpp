@@ -114,6 +114,11 @@ void GroupSequence::inc()
   ++current_;
 }
 
+SpectralSequence::SpectralSequence(const mod_t prime)
+  : prime_(prime)
+{
+}
+
 void SpectralSequence::set_diff_zero(TrigradedIndex pqs, dim_t r)
 {
     std::pair<deg_t, deg_t> bounds_ker = get_bounds(pqs.q());
@@ -284,6 +289,8 @@ MatrixQ SpectralSequence::get_diff_to(TrigradedIndex pqs, std::size_t r) const
 GroupWithMorphisms SpectralSequence::get_e_ab(TrigradedIndex pqs, dim_t a,
                                               dim_t b) const
 {
+  if(a < 2) a = 2;
+  if(b < 2) b = 2;
   std::pair<deg_t, deg_t> bounds = get_bounds(pqs.q());
   if (pqs.s() < bounds.first || pqs.s() > bounds.second) {
     return GroupWithMorphisms(0, 0);

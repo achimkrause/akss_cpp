@@ -9,7 +9,7 @@
 TEST(SessionInit, Parse)
 {
   std::string TEST_DATA_PATH = TEST_DATA_DIR + "SessionInitParse/";
-  Session session(TEST_DATA_PATH + "ranks.dat",
+  Session session(2, TEST_DATA_PATH + "ranks.dat",
                   TEST_DATA_PATH + "v_inclusions.dat",
                   TEST_DATA_PATH + "r_operations.dat.",
                   10);
@@ -18,7 +18,7 @@ TEST(SessionInit, Parse)
 TEST(SessionInit, Step)
 {
   std::string TEST_DATA_PATH = TEST_DATA_DIR + "SessionInitParse/";
-  Session session(TEST_DATA_PATH + "ranks.dat",
+  Session session(2, TEST_DATA_PATH + "ranks.dat",
                   TEST_DATA_PATH + "v_inclusions.dat",
                   TEST_DATA_PATH + "r_operations.dat.",
                   10);
@@ -28,11 +28,22 @@ TEST(SessionInit, Step)
 TEST(SessionInit, TwoSteps)
 {
   std::string TEST_DATA_PATH = TEST_DATA_DIR + "SessionInitParse/";
-  Session session(TEST_DATA_PATH + "ranks.dat",
+  Session session(2, TEST_DATA_PATH + "ranks.dat",
                   TEST_DATA_PATH + "v_inclusions.dat",
                   TEST_DATA_PATH + "r_operations.dat.",
                   10);
   session.step();
-  //std::cerr << session.get_sequence().get_e_2(TrigradedIndex(0,1,1)).tor_rank() << "\n";
+  session.step();
+}
+
+TEST(SessionInit, ThreeSteps)
+{
+  std::string TEST_DATA_PATH = TEST_DATA_DIR + "SessionInitParse/";
+  Session session(2, TEST_DATA_PATH + "ranks.dat",
+                  TEST_DATA_PATH + "v_inclusions.dat",
+                  TEST_DATA_PATH + "r_operations.dat.",
+                  10);
+  session.step();
+  session.step();
   session.step();
 }

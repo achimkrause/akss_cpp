@@ -1,14 +1,14 @@
 #include "session.h"
 
-Session::Session(std::string ranks_path, std::string v_inclusions_path,
+Session::Session(mod_t prime, std::string ranks_path, std::string v_inclusions_path,
                  std::string r_operations_path_prefix, dim_t max_deg)
+  : sequence_(prime)
 {
   parse_ranks(ranks_path, max_deg);
   parse_v_inclusions(v_inclusions_path, max_deg);
   for (dim_t i = 2; 2 * i <= max_deg; i++) {
     parse_r_operations(r_operations_path_prefix + std::to_string(2 * i), 2 * i);
   }
-
   sequence_.set_bounds(0, 0, 0);
   sequence_.set_e2(TrigradedIndex(0, 0, 0), AbelianGroup(1, 0));
   current_q_ = 0;

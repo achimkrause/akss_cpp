@@ -73,6 +73,7 @@ class GroupSequence
 class SpectralSequence
 {
  public:
+  SpectralSequence(mod_t prime);
   void set_diff_zero(TrigradedIndex pqs, dim_t r);
   void set_diff(TrigradedIndex pqs, dim_t r, MatrixQ matrix);
   MatrixQ get_diff_from(TrigradedIndex pqs, dim_t r) const;

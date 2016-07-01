@@ -17,7 +17,7 @@ class Task;
 class Session
 {
  public:
-  Session(std::string ranks_path, std::string v_inclusions_path,
+  Session(mod_t prime, std::string ranks_path, std::string v_inclusions_path,
           std::string r_operations_path_prefix, dim_t max_deg);
   void step();
 
