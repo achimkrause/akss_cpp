@@ -168,7 +168,7 @@ void SpectralSequence::set_diff(TrigradedIndex pqs, dim_t r, MatrixQ matrix)
   }
   if (cokers_it->second.get_current() != r) {
     throw std::logic_error(
-        "SpectralSequence::set_diff: Cokernel is at wrong r.");
+        "SpectralSequence::set_diff: Cokernel is at wrong r.");c
   }
 
   AbelianGroup X = kers_it->second.get_group(r);

@@ -158,24 +158,32 @@ void Session::generate_group_tasks()
 
 void Session::generate_differential_tasks(dim_t r)
 {
-  for (deg_t p = 2; p <= current_q_ + 2; p++) {
-    if (r <= static_cast<dim_t>(p - 1)) {
-      std::pair<deg_t, deg_t> bounds = sequence_.get_bounds(current_q_ + 2 - p);
-      for (deg_t s = bounds.first; s <= bounds.second; s++) {
-        task_list_.emplace_back(new DifferentialTask(
-            *this, TrigradedIndex(p, current_q_ + 2 - p, s), r));
-      }
-    }
-    if (r <= static_cast<dim_t>(current_q_ + 3 - p)) {
-      deg_t r_s = static_cast<deg_t>(r);
-      std::pair<deg_t, deg_t> bounds =
-          sequence_.get_bounds(current_q_ + 3 - p - r_s);
-      for (deg_t s = bounds.first; s <= bounds.second; s++) {
-        task_list_.emplace_back(new DifferentialTask(
-            *this, TrigradedIndex(p + r_s, current_q_ + 3 - p - r_s, s), r));
-      }
-    }
+  generate_differential_tasks_pq_deg(r+1, current_q_+1-r, r);
+
+
+  for (deg_t p = 2+r; p<= current_q_ + 3; p++) {
+    generate_differential_tasks_pq_deg(p, current_q_ + 3 - p, r);
   }
+}
+
+//generates differential tasks from (p,q,s) for all s within bounds of source OR target.
+void Session::generate_differential_tasks_pq_deg(dim_t p, dim_t q, dim_t r){
+  std::pair<deg_t, deg_t> bounds_source = sequence_.get_bounds(q);
+  std::pair<deg_t, deg_t> bounds_target = sequence_.get_bounds(q+r-1);
+  deg_t min = bounds_source.first;
+  if(bounds_target.first < bounds_source.first){
+    min = bounds_target.first;
+  }
+  deg_t max = bounds_source.second;
+  if(bounds_target.second > bounds_source.second){
+    max = bounds_target.second;
+  }
+
+  for(deg_t s = min; s<=max; s++){
+    task_list_.emplace_back(new DifferentialTask(
+            *this, TrigradedIndex(p,q,s), r));
+  }
+
 }
 
 void Session::generate_extension_tasks()

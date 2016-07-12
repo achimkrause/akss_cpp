@@ -33,6 +33,7 @@ class Session
 
   void generate_group_tasks();
   void generate_differential_tasks(dim_t r);
+  void generate_differential_tasks_pq_deg(dim_t p, dim_t q, dim_t r);
   void generate_extension_tasks();
   void autosolve_tasks();
   void user_solve_tasks();
