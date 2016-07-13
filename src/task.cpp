@@ -34,8 +34,12 @@ bool GroupTask::autosolve()
   return true;
 }
 
-void GroupTask::display_task() {
+void GroupTask::display_detail() {
   throw std::logic_error("GroupTask::display_task(): should not be called.");
+}
+
+void GroupTask::display_overview() {
+  throw std::logic_error("GroupTask::display_overview(): should not be called.");
 }
 
 ExtensionTask::ExtensionTask(Session& session, deg_t q, deg_t s)
@@ -107,7 +111,7 @@ bool ExtensionTask::autosolve()
   return false;
 }
 
-void ExtensionTask::display_task() {
+void ExtensionTask::display_detail() {
   std::cout << "ExtensionTask for s="<<s_ <<", q="<<q_<<"\n";
   std::cout << "The groups are:\n";
 
@@ -130,7 +134,10 @@ void ExtensionTask::display_task() {
     }
     std::cout << "\n";
   }
-  return false;
+}
+
+void ExtensionTask::display_overview() {
+  std::cout << "ExtensionTask for s="<<s_ <<", q="<<q_<<"\n";
 }
 
 DifferentialTask::DifferentialTask(Session& session, TrigradedIndex index,
@@ -270,11 +277,10 @@ bool DifferentialTask::autosolve()
     sequence.set_diff(index_, r_, diff_candidate_);
     return true;
   }
-
   return false;
 }
 
-void DifferentialTask::display_task() {
+void DifferentialTask::display_detail() {
   std::cout << "DifferentialTask for a d_"
   << r_
   << " from (p,q,s) = ("
@@ -284,6 +290,16 @@ void DifferentialTask::display_task() {
   << ","
   << index_.s()
   << ")\n";
+}
 
-  return false;
+void DifferentialTask::display_overview() {
+  std::cout << "DifferentialTask for a d_"
+  << r_
+  << " from (p,q,s) = ("
+  << index_.p()
+  << ","
+  << index_.q()
+  << ","
+  << index_.s()
+  << ")\n";
 }

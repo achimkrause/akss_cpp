@@ -15,9 +15,9 @@ class Task
   Task(Session& session);
   virtual ~Task() = default;
   virtual bool autosolve() = 0;
-  virtual void display_task() = 0; //placeholder for diagnostics
-
- protected:
+  virtual void display_overview() = 0;
+  virtual void display_detail() = 0;
+protected:
   Session& session_;
 };
 
@@ -28,9 +28,9 @@ class GroupTask : public Task
   virtual ~GroupTask() = default;
   // computes E^2_{p,q,s} from E^2_{0,q,s} by tensoring with degree p in Z[l_i]
   bool autosolve() override;
-  void display_task() override;
-
- private:
+  void display_overview() override;
+  void display_detail() override;
+private:
   deg_t p_;
   deg_t q_;
 };
@@ -47,9 +47,9 @@ class DifferentialTask : public Task
   virtual ~DifferentialTask() = default;
 
   bool autosolve() override;
-  void display_task() override;
-
- private:
+  void display_overview() override;
+  void display_detail() override;
+private:
   TrigradedIndex index_;
   dim_t r_;
   GroupWithMorphisms indeterminacy_;
@@ -78,8 +78,8 @@ class ExtensionTask : public Task
   ExtensionTask(Session& session, deg_t q, deg_t s);
   virtual ~ExtensionTask() = default;
   bool autosolve() override;
-  void display_task() override;
-
+  void display_overview() override;
+  void display_detail() override;
  private:
   deg_t q_;
   deg_t s_;

@@ -107,3 +107,19 @@ bool parse_matrix(std::istream& str, MatrixQ& result)
   result = result_tmp;
   return true;
 }
+
+bool accept_string(std::istream& input, std::string string){
+  const std::istream::streampos pos = input.tellg();
+
+  for(std::size_t i=0; i<string.length(); i++){
+    if(input.peek() == string[i]){
+      input++;
+      i++;
+    }
+    else {
+      input.seekg(pos);
+      return false;
+    }
+  }
+  return true;
+}

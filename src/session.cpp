@@ -222,9 +222,7 @@ void Session::autosolve_tasks()
 void Session::user_solve_tasks()
 {
   if (!task_list_.empty()) {
-    for(auto task_it = task_list_.begin(); task_it != task_list_.end(); task_it++){
-      (*task_it)->display_task();
-    }
+    display_tasks();
     throw std::logic_error("User-interaction needed.");
   }
   // call shell dialog with task list, which should eventually return a number
@@ -232,4 +230,107 @@ void Session::user_solve_tasks()
   // this should eventually return a bool. If it is true, the task has been
   // solved and
   // is removed from the list.
+}
+
+void Session::display_tasks_overview() {
+  std_t i=0;
+  for(auto task_it = task_list_.begin(); task_it != task_list_.end(); task_it++){
+    std::cout << i << ": ";
+    (*task_it)->display_task();
+  }
+}
+
+void Session::display_task_detail(std::size_t i) {
+  auto task_it = task_list_.begin();
+  for(std::size_t j; j< i; j++){
+    task_it++;
+    if(task_it == task_list_.end()){
+      std::cout << "Index too high.\n";
+      return;
+    }
+  }
+  (*task_it)->display_detail();
+}
+
+void Session::display_command_overview() {
+  std::cout << "details i: displays details for task i.\n";
+  std::cout << "e r p q s: displays E^r page entry in tridegree (p,q,s).\n";
+  std::cout << "e a b p q s: displays kernel of differentials up to d_{a-1} mod image of differentials up to d_{b-1} "
+            << "at (p,q,s). e r r p q s is equivalent to e r p q s.\n";
+  std::cout << "d r p q s: displays differential d_r leaving degree (p,q,s).\n";
+  std::cout << "solve i: opens an editor with a template for the user input for task i.\n";
+}
+
+void Session::interact(){
+  std::stringstream str;
+  str << std::cin.getline();
+  if(accept_string(str, "details ")){
+    mpz_class i;
+    eat_whitespace(str);
+    if(parse_mpz_class(str, i)) {
+      eat_whitespace(str);
+      if(str.eof()){
+        display_task_detail(i.get_ui());
+        return;
+      }
+    }
+  }
+  else if(accept_string(str, "e ")){
+    std::size_t numbers[5];
+    std::size_t numbers_parsed=0;
+    for(;numbers_parsed<5; numbers_parsed++){
+      mpz_class n;
+      eat_whitespace(str);
+      if(!parse_mpz_class(str,n)){
+        break;
+      }
+      numbers[i]=n.get_ui();
+    }
+    eat_whitespace(str);
+    if(numbers_parsed==5 && str.eof()){
+      display_eab(numbers[0], numbers[1], numbers[2], numbers[3], numbers[4]);
+      return;
+    }
+    if(numbers_parsed==4 && str.eof()){
+      display_e(numbers[0], numbers[1], numbers[2], numbers[3]);
+      return;
+    }
+  }
+  else if(accept_string(str, "d ")){
+    std::size_t numbers[4];
+    std::size_t numbers_parsed=0;
+    for(;numbers_parsed<4; numbers_parsed++){
+      mpz_class n;
+      eat_whitespace(str);
+      if(!parse_mpz_class(str,n)){
+        break;
+      }
+      numbers[i]=n.get_ui();
+    }
+    eat_whitespace(str);
+    if(numbers_parsed==4 && str.eof()){
+      display_differential(number[0],numbers[1],numbers[2],numbers[3]);
+      return;
+    }
+  }
+  else if(accept_string(str, "solve ")){
+     //placeholder
+  }
+  std::cout << "Invalid syntax.\n";
+  return;
+}
+
+void Session::display_eab(std::size_t a, std::size_t b, std::size_t p, std::size_t q, std::size_t s) {
+  AbelianGroup eab = sequence_.get_e_ab(TrigradedIndex(p,q,s),a,b).group;
+  std::cout << eab << "\n";
+}
+
+void Session::display_e(std::size_t r, std::size_t p, std::size_t q, std::size_t s) {
+  AbelianGroup e = sequence_.get_e_ab(TrigradedIndex(p,q,s),r,r);
+  std::cout << e << "\n";
+}
+
+void Session::display_differential(std::size_t r, std::size_t p, std::size_t q, std::size_t s) {
+  MatrixQ d = sequence_.get_diff_from(TrigradedIndex(p,q,s),r);
+  std::cout << d;
 }

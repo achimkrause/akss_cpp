@@ -38,6 +38,15 @@ class Session
   void autosolve_tasks();
   void user_solve_tasks();
 
+  //IO Stuff
+  void display_tasks_overview();
+  void display_task_detail(std::size_t i);
+  void display_command_overview();
+  void display_eab(std::size_t a, std::size_t b, std::size_t p, std::size_t q, std::size_t s);
+  void display_e(std::size_t r, std::size_t p, std::size_t q, std::size_t s);
+  void display_differential(std::size_t r, std::size_t p, std::size_t q, std::size_t s);
+  void interact();
+
   // shell
   SpectralSequence sequence_;
 
