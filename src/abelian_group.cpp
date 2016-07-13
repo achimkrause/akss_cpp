@@ -40,3 +40,23 @@ AbelianGroup::TorsionMatrix<mpq_class> AbelianGroup::torsion_matrix(
 {
   return AbelianGroup::TorsionMatrix<mpq_class>(*this, p);
 }
+
+void AbelianGroup::print(std::ostream& stream, mod_t p){
+  bool plus = false;
+  for (dim_t i = 0; i < free_rank(); i++) {
+    if (plus) std::cout << " + ";
+    std::cout << "Z";
+    plus = true;
+  }
+  for (dim_t i = 0; i < tor_rank(); i++) {
+    if (plus) std::cout << " + ";
+    mpz_class order =
+            p_pow_z(p, orders_[i]);
+    std::cout << "Z/";
+    std::cout << order.get_ui();  // unsafe placeholder. FABIAAAAN :(
+    plus = true;
+  }
+  if(!plus){
+    std::cout << "0";
+  }
+}

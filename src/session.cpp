@@ -27,7 +27,7 @@ dim_t Session::get_monomial_rank(deg_t p) const
   dim_t p_u = static_cast<dim_t>(p);
 
   if (p_u % 2 == 0) {
-    if (2 * ranks_.size() <= p_u) {
+    if (2 * ranks_.size() < p_u) {
       throw std::logic_error(
           "Session::get_monomial_rank: rank not set. Call parse_ranks before "
           "this.");
@@ -221,9 +221,12 @@ void Session::autosolve_tasks()
 
 void Session::user_solve_tasks()
 {
-  if (!task_list_.empty()) {
-
-    throw std::logic_error("User-interaction needed.");
+  if(!task_list_.empty()){
+    display_tasks_overview();
+    display_command_overview();
+  }
+  while(!task_list_.empty()) {
+    interact();
   }
   // call shell dialog with task list, which should eventually return a number
   // then call solve on the corresponding task, again triggering a shell dialog
@@ -259,6 +262,7 @@ void Session::display_command_overview() {
             << "at (p,q,s). e r r p q s is equivalent to e r p q s.\n";
   std::cout << "d r p q s: displays differential d_r leaving degree (p,q,s).\n";
   std::cout << "solve i: opens an editor with a template for the user input for task i.\n";
+  std::cout << "anss: displays the p=0 E^2 terms computed so far.\n";
 }
 
 void Session::interact(){
@@ -286,13 +290,14 @@ void Session::interact(){
         break;
       }
       numbers[numbers_parsed]=n.get_ui();
+
     }
     eat_whitespace(input);
-    if(numbers_parsed==5 && input.eof()){
+    if(numbers_parsed==5 && input.peek()==-1){
       display_eab(numbers[0], numbers[1], numbers[2], numbers[3], numbers[4]);
       return;
     }
-    if(numbers_parsed==4 && input.eof()){
+    if(numbers_parsed==4 && input.peek()==-1){
       display_e(numbers[0], numbers[1], numbers[2], numbers[3]);
       return;
     }
@@ -309,7 +314,7 @@ void Session::interact(){
       numbers[numbers_parsed]=n.get_ui();
     }
     eat_whitespace(input);
-    if(numbers_parsed==4 && input.eof()){
+    if(numbers_parsed==4 && input.peek()==-1){
       display_differential(numbers[0],numbers[1],numbers[2],numbers[3]);
       return;
     }
@@ -317,21 +322,49 @@ void Session::interact(){
   else if(accept_string(input, "solve ")){
      //placeholder
   }
+  else if(accept_string(input, "anss")){
+     eat_whitespace(input);
+     if(input.peek()==-1) {
+       display_anss_e2();
+       return;
+     }
+  }
   std::cout << "Invalid syntax.\n";
+
   return;
 }
 
 void Session::display_eab(std::size_t a, std::size_t b, std::size_t p, std::size_t q, std::size_t s) {
-  AbelianGroup eab = sequence_.get_e_ab(TrigradedIndex(p,q,s),a,b).group;
-  //std::cout << eab << "\n";
+  GroupWithMorphisms eab = sequence_.get_e_ab(TrigradedIndex(p,q,s),a,b);
+  std::cout << "Group: ";
+  eab.group.print(std::cout,sequence_.get_prime());
+  std::cout << "\n";
+  MatrixQ ker_inclusion = sequence_.get_inclusion(TrigradedIndex(p,q,s),a);
+  MatrixQ representatives = ker_inclusion * eab.maps_from[1]; //eab.maps_from[1] has columns representatives for generators.
+  std::cout << "with generators represented by:\n" << representatives;
 }
 
 void Session::display_e(std::size_t r, std::size_t p, std::size_t q, std::size_t s) {
   AbelianGroup e = sequence_.get_e_ab(TrigradedIndex(p,q,s),r,r).group;
-  //std::cout << e << "\n";
+  std::cout << "Group: ";
+  e.print(std::cout,sequence_.get_prime());
+  std::cout << "\n";
 }
-
 void Session::display_differential(std::size_t r, std::size_t p, std::size_t q, std::size_t s) {
   MatrixQ d = sequence_.get_diff_from(TrigradedIndex(p,q,s),r);
   std::cout << d;
+}
+
+void Session::display_anss_e2(){
+  for(std::size_t q =0; q <= current_q_; q++){
+    std::cout << "q="<<q<<":\n";
+    bool comma = false;
+    for(std::size_t s = 0; s<=q; s++){
+      if(comma) std::cout << ", ";
+      AbelianGroup grp = sequence_.get_e_2(TrigradedIndex(0,q,s));
+      grp.print(std::cout,sequence_.get_prime());
+      comma=true;
+    }
+    std::cout << "\n";
+  }
 }

@@ -156,7 +156,9 @@ GroupWithMorphisms compute_image(const mod_t p, const MatrixQ& f,
   GroupWithMorphisms K = compute_kernel(p, f, X, Y, to_X_dummy, ref(from_X));
 
   MatrixQList to_X_2 =  {MatrixQ::identity(X.rank())};
-  MatrixQList from_X_2 = {f};
+  MatrixQList from_X_2 = {f,MatrixQ::identity(X.rank())};//hacky, since id:X->X doesn't vanish on K.
+                                                         //but due to the implementation, the columns of this will contain
+                                                         //representatives in X for the generators of img.
   GroupWithMorphisms img =
       compute_cokernel(p, K.maps_from[0], X, ref(to_X_2), ref(from_X_2));
 

@@ -51,13 +51,14 @@ ExtensionTask::ExtensionTask(Session& session, deg_t q, deg_t s)
 bool ExtensionTask::autosolve()
 {
   SpectralSequence& sequence = session_.get_sequence();
-  dim_t next_q_u = static_cast<dim_t>(q_ + 1);
-  for (dim_t n = 2; n <= next_q_u - 1; n++) {
+
+  for (dim_t n = 2; n <= q_; n++) {
     // take the term at (n,q-n+1,s-1) taking into account differentials up to
     // n-1 leaving,
     // and differentials up to q-n+2 entering.
+
     GroupWithMorphisms eab = sequence.get_e_ab(
-        source(TrigradedIndex(0, q_, s_), n), n - 1, next_q_u - n + 1);
+        source(TrigradedIndex(0, q_, s_), n), n, q_ - n + 3);
     if (eab.group.rank() != 0) {
       list_groups_.emplace(n, eab.group);
       list_maps_.emplace(n, eab.maps_to.front());
@@ -66,9 +67,9 @@ bool ExtensionTask::autosolve()
   // now, for n=q_+1, s=1, we have to compute e_ab mod the v_n.
   if (s_ == 1) {
     AbelianGroup iterated_kernel =
-        sequence.get_kernel(TrigradedIndex(q_ + 1, 0, 0), next_q_u);
+        sequence.get_kernel(TrigradedIndex(q_ + 1, 0, 0), q_+1);
     MatrixQ inclusion =
-        sequence.get_inclusion(TrigradedIndex(q_ + 1, 0, 0), next_q_u);
+        sequence.get_inclusion(TrigradedIndex(q_ + 1, 0, 0), q_+1);
 
     MatrixQ v_i_map = session_.get_v_inclusion(q_ + 1);
     MatrixQ matrix = lift_from_free(
@@ -85,7 +86,7 @@ bool ExtensionTask::autosolve()
   }
   if (list_groups_.size() == 0) {
     sequence.set_e2(TrigradedIndex(0, q_, s_), AbelianGroup(0, 0));
-    for (dim_t i = 2; i <= next_q_u; i++) {
+    for (dim_t i = 2; i <= q_+1; i++) {
       sequence.set_diff_zero(source(TrigradedIndex(0, q_, s_), i), i);
     }
     return true;
@@ -104,7 +105,7 @@ bool ExtensionTask::autosolve()
     sequence.set_diff(source(TrigradedIndex(0, q_, s_), r), r,
                       list_maps_.begin()->second);
     // and the rest 0.
-    for (dim_t i = r + 1; i <= next_q_u; i++) {
+    for (dim_t i = r + 1; i <= q_+1; i++) {
       sequence.set_diff_zero(source(TrigradedIndex(0, q_, s_), i), i);
     }
     return true;
@@ -122,19 +123,7 @@ void ExtensionTask::display_detail() {
     std::cout << "   Degree (p,q,s) = (" << p << ","
               << static_cast<dim_t>(q_) + 1 - p << "," << s_ - 1 << ")"
               << ": ";
-    bool plus = false;
-    for (dim_t i = 0; i < group_it->second.free_rank(); i++) {
-      if (plus) std::cout << " + ";
-      std::cout << "Z";
-      plus = true;
-    }
-    for (dim_t i = 0; i < group_it->second.tor_rank(); i++) {
-      if (plus) std::cout << " + ";
-      mpz_class order =
-          p_pow_z(session_.get_sequence().get_prime(), group_it->second(i));
-      std::cout << "Z/";
-      std::cout << order.get_ui();  // unsafe placeholder. FABIAAAAN :(
-    }
+    group_it->second.print(std::cout, session_.get_sequence().get_prime());
     std::cout << "\n";
   }
 }
@@ -172,6 +161,10 @@ bool DifferentialTask::autosolve()
   // The composition of our big matrix with the projection onto the r-1st
   // cokernel is our representative.
 
+  if(r_ == 6 && index_.p() == 8 && index_.q() == 0 && index_.s() == 0){
+    std::cerr << "break\n";
+  }
+
   SpectralSequence& sequence = session_.get_sequence();
 
   if (index_.p() % 2 == 1 || (index_.p() - static_cast<deg_t>(r_)) % 2 == 1) {
@@ -189,38 +182,49 @@ bool DifferentialTask::autosolve()
   }
 
   deg_t r_s = static_cast<deg_t>(r_);
-  AbelianGroup e2_left_img =
+  AbelianGroup e2_left_codomain =
       sequence.get_e_2(TrigradedIndex(0, index_.q() + r_s - 1, index_.s() + 1));
-  AbelianGroup er_left_img = sequence.get_cokernel(
+  //std::cout << "e2_left_codomain:\n";
+  //e2_left_codomain.print(std::cout, sequence.get_prime());
+  //std::cout << "\n";
+  AbelianGroup er_left_codomain = sequence.get_cokernel(
       TrigradedIndex(0, index_.q() + r_s - 1, index_.s() + 1), r_);
+  //std::cout << "er_left_codomain:\n";
+  //er_left_codomain.print(std::cout, sequence.get_prime());
+  //std::cout << "\n";
   MatrixQ projection_left_img = sequence.get_projection(
       TrigradedIndex(0, index_.q() + r_s - 1, index_.s() + 1), r_);
+  //std::cout << "MatrixQ projection_left_img:\n" << projection_left_img << "\n";
+
 
   MatrixQ diff_left =
       sequence.get_diff_from(TrigradedIndex(r_s, index_.q(), index_.s()), r_);
-
+  //std::cout << "MatrixQ diff_left:\n" << diff_left << "\n";
   //"lift" the differential from (r,q,s) -> (0,q-r+1,s+1) over
   // projection_left_img
   //(actually just a free presentation)
   MatrixQ lift = lift_from_free(sequence.get_prime(), diff_left,
-                                projection_left_img, er_left_img);
+                                projection_left_img, er_left_codomain);
+  //std::cout << "lift:\n" << lift << "\n";
 
   AbelianGroup e2_0_q_s =
       sequence.get_e_2(TrigradedIndex(0, index_.q(), index_.s()));
 
   dim_t mon_rank = session_.get_monomial_rank(index_.p() - r_s);
-  MatrixQ result_lift(mon_rank * e2_left_img.rank(), ker_right_domain.rank());
+  MatrixQ result_lift(mon_rank * e2_left_codomain.rank(), ker_right_domain.rank());
 
   MatrixQ inclusion_right_domain = sequence.get_inclusion(index_, r_);
+  //std::cout << "inclusion_right_domain:\n" << inclusion_right_domain << "\n";
   AbelianGroup ker_left_domain =
       sequence.get_kernel(TrigradedIndex(r_s, index_.q(), index_.s()), r_);
   MatrixQ inclusion_left_domain =
       sequence.get_inclusion(TrigradedIndex(r_s, index_.q(), index_.s()), r_);
-
+  //std::cout << "inclusion_left_domain:\n" << inclusion_left_domain << "\n";
   for (dim_t i = 0; i < mon_rank; i++) {
     // r_ is both the page number and the p of the transgression
     MatrixQ r_I =
         session_.get_r_operations(index_.p(), static_cast<deg_t>(r_), i);
+    //std::cout << "r_I:\n" << r_I << "\n";
     // obtain the tensor product A\otimes r_I, where A is the group e2_0_q_s.
     MatrixQ r_I_q(r_I.height() * e2_0_q_s.rank(),
                   r_I.width() * e2_0_q_s.rank());
@@ -232,17 +236,18 @@ bool DifferentialTask::autosolve()
         }
       }
     }
-
+    //std::cout << "r_I_q:\n" << r_I_q << "\n";
     // lift r_I_q * inclusion_right_domain against
     // inclusion_left_domain (okay because this is injective).
     MatrixQ r_I_ker =
         lift_from_free(sequence.get_prime(), r_I_q * inclusion_right_domain,
                        inclusion_left_domain, ker_left_domain);
-
+    //std::cout << "r_I_ker:\n" << r_I_ker << "\n";
     MatrixQ lift_r_I = lift * r_I_ker;
-    for (dim_t h = 0; h < e2_left_img.rank(); h++) {
+    //std::cout << "lift_r_I:\n" << lift_r_I << "\n";
+    for (dim_t h = 0; h < e2_left_codomain.rank(); h++) {
       for (dim_t w = 0; w < ker_right_domain.rank(); w++) {
-        result_lift(h * mon_rank + i, w) = r_I_ker(h, w);
+        result_lift(h * mon_rank + i, w) = lift_r_I(h, w);
       }
     }
   }
@@ -258,8 +263,8 @@ bool DifferentialTask::autosolve()
   MatrixQList from_X;
   from_X.emplace_back(id);
   GroupWithMorphisms ker_proj_morphisms =
-      compute_kernel(sequence.get_prime(), projection_left_img, e2_left_img,
-                     er_left_img, MatrixQRefList(), ref(from_X));
+      compute_kernel(sequence.get_prime(), projection_left_img, e2_left_codomain,
+                     er_left_codomain, MatrixQRefList(), ref(from_X));
   MatrixQ from_K = *ker_proj_morphisms.maps_from.begin();
   MatrixQ from_K_tensor(from_K.height() * mon_rank, from_K.width() * mon_rank);
   for (dim_t i = 0; i < from_K.height(); i++) {

@@ -53,7 +53,7 @@ class AbelianGroup
   }
 
   TorsionMatrix<mpq_class> torsion_matrix(const mod_t p) const;
-
+  void print(std::ostream& stream, mod_t p);
  private:
   dim_t free_rank_;
   std::vector<dim_t> orders_;

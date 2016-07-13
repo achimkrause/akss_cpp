@@ -46,6 +46,7 @@ class Session
   void display_e(std::size_t r, std::size_t p, std::size_t q, std::size_t s);
   void display_differential(std::size_t r, std::size_t p, std::size_t q, std::size_t s);
   void interact();
+  void display_anss_e2();
 
   // shell
   SpectralSequence sequence_;

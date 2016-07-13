@@ -55,7 +55,7 @@ TEST(SessionInit, TenSteps)
                   TEST_DATA_PATH + "v_inclusions.dat",
                   TEST_DATA_PATH + "r_operations.dat.",
                   10);
-  for(int i=0; i<10; i++){
+  for(int i=0; i<9; i++){
     session.step();
   };
 }
