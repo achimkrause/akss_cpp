@@ -1,7 +1,7 @@
 #include "morphisms.h"
+#include "p_local.h"
 #include "spectral_sequence.h"
 #include "task.h"
-#include "p_local.h"
 
 Task::Task(Session& session) : session_(session)
 {
@@ -33,6 +33,7 @@ bool GroupTask::autosolve()
   }
   return true;
 }
+
 
 void GroupTask::display_detail() {
   throw std::logic_error("GroupTask::display_task(): should not be called.");
@@ -112,25 +113,27 @@ bool ExtensionTask::autosolve()
 }
 
 void ExtensionTask::display_detail() {
-  std::cout << "ExtensionTask for s="<<s_ <<", q="<<q_<<"\n";
+  std::cout << "ExtensionTask for s=" << s_ << ", q=" << q_ << "\n";
   std::cout << "The groups are:\n";
 
-  for(auto group_it = list_groups_.begin(); group_it != list_groups_.end(); group_it++){
-    std::size_t p = group_it -> first;
-    std::cout << "   Degree (p,q,s) = (" << p << "," << q_ + 1 - p << "," << s_-1 << ")" << ": ";
+  for (auto group_it = list_groups_.begin(); group_it != list_groups_.end();
+       group_it++) {
+    std::size_t p = group_it->first;
+    std::cout << "   Degree (p,q,s) = (" << p << ","
+              << static_cast<dim_t>(q_) + 1 - p << "," << s_ - 1 << ")"
+              << ": ";
     bool plus = false;
-    for(int i=0; i<group_it->second.free_rank(); i++){
-      if(plus)
-        std::cout << " + ";
+    for (dim_t i = 0; i < group_it->second.free_rank(); i++) {
+      if (plus) std::cout << " + ";
       std::cout << "Z";
-      plus=true;
+      plus = true;
     }
-    for(std::size_t i=0; i<group_it->second.tor_rank(); i++){
-      if(plus)
-        std::cout << " + ";
-      mpz_class order = p_pow_z(session_.get_sequence().get_prime(), group_it->second(i));
+    for (dim_t i = 0; i < group_it->second.tor_rank(); i++) {
+      if (plus) std::cout << " + ";
+      mpz_class order =
+          p_pow_z(session_.get_sequence().get_prime(), group_it->second(i));
       std::cout << "Z/";
-      std::cout << order.get_ui(); //unsafe placeholder. FABIAAAAN :(
+      std::cout << order.get_ui();  // unsafe placeholder. FABIAAAAN :(
     }
     std::cout << "\n";
   }
@@ -171,16 +174,17 @@ bool DifferentialTask::autosolve()
 
   SpectralSequence& sequence = session_.get_sequence();
 
-  if(index_.p() % 2 == 1 || (index_.p() - r_) % 2 == 1){
-    sequence.set_diff_zero(index_,r_);
+  if (index_.p() % 2 == 1 || (index_.p() - static_cast<deg_t>(r_)) % 2 == 1) {
+    sequence.set_diff_zero(index_, r_);
     return true;
   }
 
   AbelianGroup ker_right_domain = sequence.get_kernel(index_, r_);
-  AbelianGroup coker_right_codomain = sequence.get_cokernel(target(index_,r_),r_);
+  AbelianGroup coker_right_codomain =
+      sequence.get_cokernel(target(index_, r_), r_);
 
-  if(ker_right_domain.rank() == 0 || coker_right_codomain.rank() == 0){
-    sequence.set_diff_zero(index_,r_);
+  if (ker_right_domain.rank() == 0 || coker_right_codomain.rank() == 0) {
+    sequence.set_diff_zero(index_, r_);
     return true;
   }
 
