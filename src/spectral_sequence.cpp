@@ -155,54 +155,89 @@ void SpectralSequence::set_diff_zero(TrigradedIndex pqs, dim_t r)
 
 void SpectralSequence::set_diff(TrigradedIndex pqs, dim_t r, MatrixQ matrix)
 {
-  auto kers_it = kernels_.find(pqs);
-  auto cokers_it = cokernels_.find(target(pqs, r));
-  if (kers_it == kernels_.end()) {
-    throw std::logic_error("SpectralSequence::set_diff: Kernel is not set.");
+  std::pair<deg_t, deg_t> bounds_source = get_bounds(pqs.q());
+  std::pair<deg_t, deg_t> bounds_target = get_bounds(static_cast<deg_t>(pqs.q()+r-1));
+
+  if(pqs.s() < bounds_source.first || pqs.s() > bounds_source.second){
+    if(pqs.s()+1 < bounds_target.first || pqs.s()+1 > bounds_target.second){
+      return;
+    }
+    else{
+      auto cokers_it = cokernels_.find(target(pqs, r));
+      if (cokers_it == cokernels_.end()) {
+        throw std::logic_error("SpectralSequence::set_diff: Cokernel is not set.");
+      }
+      if (cokers_it->second.get_current() != r) {
+        throw std::logic_error(
+                "SpectralSequence::set_diff: Cokernel is at wrong r.");
+      }
+      //could check whether matrix is 0.
+      cokers_it->second.inc();
+      return;
+    }
   }
-  if (cokers_it == cokernels_.end()) {
-    throw std::logic_error("SpectralSequence::set_diff: Cokernel is not set.");
-  }
-  if (kers_it->second.get_current() != r) {
-    throw std::logic_error("SpectralSequence::set_diff: Kernel is at wrong r.");
-  }
-  if (cokers_it->second.get_current() != r) {
-    throw std::logic_error(
-        "SpectralSequence::set_diff: Cokernel is at wrong r.");c
-  }
+  else{
+    if(pqs.s()+1 < bounds_target.first || pqs.s()+1 > bounds_target.second){
+      auto kers_it = kernels_.find(pqs);
+      if (kers_it == kernels_.end()) {
+        throw std::logic_error("SpectralSequence::set_diff: Kernel is not set.");
+      }
+      if (kers_it->second.get_current() != r) {
+        throw std::logic_error("SpectralSequence::set_diff: Kernel is at wrong r.");
+      }
+      //could check whether matrix is 0.
+      kers_it->second.inc();
+      return;
+    }
+    else{
+      auto kers_it = kernels_.find(pqs);
+      if (kers_it == kernels_.end()) {
+        throw std::logic_error("SpectralSequence::set_diff: Kernel is not set.");
+      }
+      if (kers_it->second.get_current() != r) {
+        throw std::logic_error("SpectralSequence::set_diff: Kernel is at wrong r.");
+      }
+      auto cokers_it = cokernels_.find(target(pqs, r));
+      if (cokers_it == cokernels_.end()) {
+        throw std::logic_error("SpectralSequence::set_diff: Cokernel is not set.");
+      }
+      if (cokers_it->second.get_current() != r) {
+        throw std::logic_error(
+                "SpectralSequence::set_diff: Cokernel is at wrong r.");
+      }
+      AbelianGroup X = kers_it->second.get_group(r);
+      AbelianGroup Y = cokers_it->second.get_group(r);
+      if (morphism_zero(prime_, matrix, Y)) {
+        kers_it->second.inc();
+        cokers_it->second.inc();
+        return;
+      }
 
-  AbelianGroup X = kers_it->second.get_group(r);
-  AbelianGroup Y = cokers_it->second.get_group(r);
+      MatrixQ inc_X = kers_it->second.get_matrix(r);
+      MatrixQ proj_Y = cokers_it->second.get_matrix(r);
 
-  if (morphism_zero(prime_, matrix, Y)) {
-    kers_it->second.inc();
-    cokers_it->second.inc();
-    return;
-  }
+      MatrixQList from_X, to_Y;
+      from_X.emplace_back(inc_X);
+      to_Y.emplace_back(proj_Y);
 
-  MatrixQ inc_X = kers_it->second.get_matrix(r);
-  MatrixQ proj_Y = cokers_it->second.get_matrix(r);
+      GroupWithMorphisms new_kernel =
+              compute_kernel(prime_, matrix, X, Y, MatrixQRefList(), ref(from_X));
+      GroupWithMorphisms new_cokernel =
+              compute_cokernel(prime_, matrix, Y, ref(to_Y), MatrixQRefList());
 
-  MatrixQList from_X, to_Y;
-  from_X.emplace_back(inc_X);
-  to_Y.emplace_back(proj_Y);
+      kers_it->second.append(r + 1, new_kernel.group, new_kernel.maps_from[0]);
+      cokers_it->second.append(r + 1, new_cokernel.group, new_cokernel.maps_to[0]);
 
-  GroupWithMorphisms new_kernel =
-      compute_kernel(prime_, matrix, X, Y, MatrixQRefList(), ref(from_X));
-  GroupWithMorphisms new_cokernel =
-      compute_cokernel(prime_, matrix, Y, ref(to_Y), MatrixQRefList());
+      auto diffmap_it = differentials_.find(pqs);
 
-  kers_it->second.append(r + 1, new_kernel.group, new_kernel.maps_from[0]);
-  cokers_it->second.append(r + 1, new_cokernel.group, new_cokernel.maps_to[0]);
-
-  auto diffmap_it = differentials_.find(pqs);
-
-  if (diffmap_it == differentials_.end()) {
-    std::map<dim_t, MatrixQ> diffs_at_pqs;
-    diffs_at_pqs.insert(std::pair<dim_t, MatrixQ>(r, matrix));
-    differentials_.emplace(pqs, diffs_at_pqs);
-  } else {
-    diffmap_it->second.emplace(r, matrix);
+      if (diffmap_it == differentials_.end()) {
+        std::map<dim_t, MatrixQ> diffs_at_pqs;
+        diffs_at_pqs.insert(std::pair<dim_t, MatrixQ>(r, matrix));
+        differentials_.emplace(pqs, diffs_at_pqs);
+      } else {
+        diffmap_it->second.emplace(r, matrix);
+      }
+    }
   }
 }
 

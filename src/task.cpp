@@ -1,6 +1,7 @@
 #include "morphisms.h"
 #include "spectral_sequence.h"
 #include "task.h"
+#include "p_local.h"
 
 Task::Task(Session& session) : session_(session)
 {
@@ -31,6 +32,10 @@ bool GroupTask::autosolve()
     sequence.set_e2(TrigradedIndex(p_, q_, s), result);
   }
   return true;
+}
+
+bool GroupTask::usersolve() {
+  throw std::logic_error("GroupTask::usersolve(): should not be called.");
 }
 
 ExtensionTask::ExtensionTask(Session& session, deg_t q, deg_t s)
@@ -102,6 +107,32 @@ bool ExtensionTask::autosolve()
   return false;
 }
 
+bool ExtensionTask::usersolve() {
+  std::cout << "Need to solve ExtensionTask for s="<<s_ <<", q="<<q_<<"\n";
+  std::cout << "The groups are:\n";
+
+  for(auto group_it = list_groups_.begin(); group_it != list_groups_.end(); group_it++){
+    std::size_t p = group_it -> first;
+    std::cout << "   Degree (p,q,s) = (" << p << "," << q_ + 1 - p << "," << s_-1 << ")" << ": ";
+    bool plus = false;
+    for(int i=0; i<group_it->second.free_rank(); i++){
+      if(plus)
+        std::cout << " + ";
+      std::cout << "Z";
+      plus=true;
+    }
+    for(std::size_t i=0; i<group_it->second.tor_rank(); i++){
+      if(plus)
+        std::cout << " + ";
+      mpz_class order = p_pow_z(session_.get_sequence().get_prime(), group_it->second(i));
+      std::cout << "Z/";
+      std::cout << order.get_ui(); //unsafe placeholder. FABIAAAAN :(
+    }
+    std::cout << "\n";
+  }
+  return false;
+}
+
 DifferentialTask::DifferentialTask(Session& session, TrigradedIndex index,
                                    dim_t r)
     : Task(session), index_(index), r_(r)
@@ -130,7 +161,21 @@ bool DifferentialTask::autosolve()
   // this is our indeterminacy.
   // The composition of our big matrix with the projection onto the r-1st
   // cokernel is our representative.
+
   SpectralSequence& sequence = session_.get_sequence();
+
+  if(index_.p() % 2 == 1 || (index_.p() - r_) % 2 == 1){
+    sequence.set_diff_zero(index_,r_);
+    return true;
+  }
+
+  AbelianGroup ker_right_domain = sequence.get_kernel(index_, r_);
+  AbelianGroup coker_right_codomain = sequence.get_cokernel(target(index_,r_),r_);
+
+  if(ker_right_domain.rank() == 0 || coker_right_codomain.rank() == 0){
+    sequence.set_diff_zero(index_,r_);
+    return true;
+  }
 
   deg_t r_s = static_cast<deg_t>(r_);
   AbelianGroup e2_left_img =
@@ -151,7 +196,6 @@ bool DifferentialTask::autosolve()
 
   AbelianGroup e2_0_q_s =
       sequence.get_e_2(TrigradedIndex(0, index_.q(), index_.s()));
-  AbelianGroup ker_right_domain = sequence.get_kernel(index_, r_);
 
   dim_t mon_rank = session_.get_monomial_rank(index_.p() - r_s);
   MatrixQ result_lift(mon_rank * e2_left_img.rank(), ker_right_domain.rank());
@@ -226,6 +270,20 @@ bool DifferentialTask::autosolve()
     sequence.set_diff(index_, r_, diff_candidate_);
     return true;
   }
+
+  return false;
+}
+
+bool DifferentialTask::usersolve() {
+  std::cout << "Need to solve DifferentialTask for a d_"
+  << r_
+  << " from (p,q,s) = ("
+  << index_.p()
+  << ","
+  << index_.q()
+  << ","
+  << index_.s()
+  << ")\n";
 
   return false;
 }

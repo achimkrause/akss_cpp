@@ -1,4 +1,5 @@
 #include "session.h"
+#include <sstream>
 
 Session::Session(mod_t prime, std::string ranks_path, std::string v_inclusions_path,
                  std::string r_operations_path_prefix, dim_t max_deg)
@@ -58,7 +59,19 @@ MatrixQ Session::get_v_inclusion(deg_t p) const
 
 MatrixQ Session::get_r_operations(deg_t source, deg_t target, dim_t index) const
 {
-  return r_operations_.at(std::make_tuple(source, target, index));
+  auto r_operations_it = r_operations_.find(std::make_tuple(source, target, index));
+  if(r_operations_it == r_operations_.end()){
+    std::stringstream str;
+    str << "Session::get_r_operations: Operation with index "
+              << index
+              << " from "
+              << source
+              << " to "
+              << target
+              << " not set.";
+    throw std::logic_error(str.str());
+  }
+  return r_operations_it->second;
 }
 
 void Session::parse_ranks(std::string path, dim_t max_deg)
@@ -168,15 +181,16 @@ void Session::generate_differential_tasks(dim_t r)
 
 //generates differential tasks from (p,q,s) for all s within bounds of source OR target.
 void Session::generate_differential_tasks_pq_deg(dim_t p, dim_t q, dim_t r){
+
   std::pair<deg_t, deg_t> bounds_source = sequence_.get_bounds(q);
   std::pair<deg_t, deg_t> bounds_target = sequence_.get_bounds(q+r-1);
   deg_t min = bounds_source.first;
-  if(bounds_target.first < bounds_source.first){
-    min = bounds_target.first;
+  if(bounds_target.first-1 < bounds_source.first){
+    min = bounds_target.first-1;
   }
   deg_t max = bounds_source.second;
-  if(bounds_target.second > bounds_source.second){
-    max = bounds_target.second;
+  if(bounds_target.second-1 > bounds_source.second){
+    max = bounds_target.second-1;
   }
 
   for(deg_t s = min; s<=max; s++){
@@ -208,6 +222,9 @@ void Session::autosolve_tasks()
 void Session::user_solve_tasks()
 {
   if (!task_list_.empty()) {
+    for(auto task_it = task_list_.begin(); task_it != task_list_.end(); task_it++){
+      (*task_it)->usersolve();
+    }
     throw std::logic_error("User-interaction needed.");
   }
   // call shell dialog with task list, which should eventually return a number
