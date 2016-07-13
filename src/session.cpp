@@ -222,7 +222,7 @@ void Session::autosolve_tasks()
 void Session::user_solve_tasks()
 {
   if (!task_list_.empty()) {
-    display_tasks();
+
     throw std::logic_error("User-interaction needed.");
   }
   // call shell dialog with task list, which should eventually return a number
@@ -233,16 +233,16 @@ void Session::user_solve_tasks()
 }
 
 void Session::display_tasks_overview() {
-  std_t i=0;
+  std::size_t i=0;
   for(auto task_it = task_list_.begin(); task_it != task_list_.end(); task_it++){
     std::cout << i << ": ";
-    (*task_it)->display_task();
+    (*task_it)->display_overview();
   }
 }
 
 void Session::display_task_detail(std::size_t i) {
   auto task_it = task_list_.begin();
-  for(std::size_t j; j< i; j++){
+  for(std::size_t j=0; j< i; j++){
     task_it++;
     if(task_it == task_list_.end()){
       std::cout << "Index too high.\n";
@@ -262,58 +262,59 @@ void Session::display_command_overview() {
 }
 
 void Session::interact(){
-  std::stringstream str;
-  str << std::cin.getline();
-  if(accept_string(str, "details ")){
+  std::string str;
+  std::getline(std::cin,str);
+  std::stringstream input(str);
+  if(accept_string(input, "details ")){
     mpz_class i;
-    eat_whitespace(str);
-    if(parse_mpz_class(str, i)) {
-      eat_whitespace(str);
-      if(str.eof()){
+    eat_whitespace(input);
+    if(parse_mpz_class(input, i)) {
+      eat_whitespace(input);
+      if(input.eof()){
         display_task_detail(i.get_ui());
         return;
       }
     }
   }
-  else if(accept_string(str, "e ")){
+  else if(accept_string(input, "e ")){
     std::size_t numbers[5];
     std::size_t numbers_parsed=0;
     for(;numbers_parsed<5; numbers_parsed++){
       mpz_class n;
-      eat_whitespace(str);
-      if(!parse_mpz_class(str,n)){
+      eat_whitespace(input);
+      if(!parse_mpz_class(input,n)){
         break;
       }
-      numbers[i]=n.get_ui();
+      numbers[numbers_parsed]=n.get_ui();
     }
-    eat_whitespace(str);
-    if(numbers_parsed==5 && str.eof()){
+    eat_whitespace(input);
+    if(numbers_parsed==5 && input.eof()){
       display_eab(numbers[0], numbers[1], numbers[2], numbers[3], numbers[4]);
       return;
     }
-    if(numbers_parsed==4 && str.eof()){
+    if(numbers_parsed==4 && input.eof()){
       display_e(numbers[0], numbers[1], numbers[2], numbers[3]);
       return;
     }
   }
-  else if(accept_string(str, "d ")){
+  else if(accept_string(input, "d ")){
     std::size_t numbers[4];
     std::size_t numbers_parsed=0;
     for(;numbers_parsed<4; numbers_parsed++){
       mpz_class n;
-      eat_whitespace(str);
-      if(!parse_mpz_class(str,n)){
+      eat_whitespace(input);
+      if(!parse_mpz_class(input,n)){
         break;
       }
-      numbers[i]=n.get_ui();
+      numbers[numbers_parsed]=n.get_ui();
     }
-    eat_whitespace(str);
-    if(numbers_parsed==4 && str.eof()){
-      display_differential(number[0],numbers[1],numbers[2],numbers[3]);
+    eat_whitespace(input);
+    if(numbers_parsed==4 && input.eof()){
+      display_differential(numbers[0],numbers[1],numbers[2],numbers[3]);
       return;
     }
   }
-  else if(accept_string(str, "solve ")){
+  else if(accept_string(input, "solve ")){
      //placeholder
   }
   std::cout << "Invalid syntax.\n";
@@ -322,12 +323,12 @@ void Session::interact(){
 
 void Session::display_eab(std::size_t a, std::size_t b, std::size_t p, std::size_t q, std::size_t s) {
   AbelianGroup eab = sequence_.get_e_ab(TrigradedIndex(p,q,s),a,b).group;
-  std::cout << eab << "\n";
+  //std::cout << eab << "\n";
 }
 
 void Session::display_e(std::size_t r, std::size_t p, std::size_t q, std::size_t s) {
-  AbelianGroup e = sequence_.get_e_ab(TrigradedIndex(p,q,s),r,r);
-  std::cout << e << "\n";
+  AbelianGroup e = sequence_.get_e_ab(TrigradedIndex(p,q,s),r,r).group;
+  //std::cout << e << "\n";
 }
 
 void Session::display_differential(std::size_t r, std::size_t p, std::size_t q, std::size_t s) {

@@ -113,7 +113,7 @@ bool accept_string(std::istream& input, std::string string){
 
   for(std::size_t i=0; i<string.length(); i++){
     if(input.peek() == string[i]){
-      input++;
+      input.ignore();
       i++;
     }
     else {
