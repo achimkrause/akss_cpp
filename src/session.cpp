@@ -223,7 +223,7 @@ void Session::user_solve_tasks()
 {
   if (!task_list_.empty()) {
     for(auto task_it = task_list_.begin(); task_it != task_list_.end(); task_it++){
-      (*task_it)->usersolve();
+      (*task_it)->display_task();
     }
     throw std::logic_error("User-interaction needed.");
   }

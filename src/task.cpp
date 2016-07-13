@@ -34,8 +34,8 @@ bool GroupTask::autosolve()
   return true;
 }
 
-bool GroupTask::usersolve() {
-  throw std::logic_error("GroupTask::usersolve(): should not be called.");
+void GroupTask::display_task() {
+  throw std::logic_error("GroupTask::display_task(): should not be called.");
 }
 
 ExtensionTask::ExtensionTask(Session& session, deg_t q, deg_t s)
@@ -107,8 +107,8 @@ bool ExtensionTask::autosolve()
   return false;
 }
 
-bool ExtensionTask::usersolve() {
-  std::cout << "Need to solve ExtensionTask for s="<<s_ <<", q="<<q_<<"\n";
+void ExtensionTask::display_task() {
+  std::cout << "ExtensionTask for s="<<s_ <<", q="<<q_<<"\n";
   std::cout << "The groups are:\n";
 
   for(auto group_it = list_groups_.begin(); group_it != list_groups_.end(); group_it++){
@@ -274,8 +274,8 @@ bool DifferentialTask::autosolve()
   return false;
 }
 
-bool DifferentialTask::usersolve() {
-  std::cout << "Need to solve DifferentialTask for a d_"
+void DifferentialTask::display_task() {
+  std::cout << "DifferentialTask for a d_"
   << r_
   << " from (p,q,s) = ("
   << index_.p()
