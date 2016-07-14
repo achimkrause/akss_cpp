@@ -1,3 +1,4 @@
+#include <sstream>
 #include "morphisms.h"
 #include "p_local.h"
 #include "spectral_sequence.h"
@@ -34,6 +35,9 @@ bool GroupTask::autosolve()
   return true;
 }
 
+bool GroupTask::usersolve() {
+  throw std::logic_error("GroupTask::usersolve(): should not be called.");
+}
 
 void GroupTask::display_detail() {
   throw std::logic_error("GroupTask::display_task(): should not be called.");
@@ -111,6 +115,44 @@ bool ExtensionTask::autosolve()
     return true;
   }
   return false;
+}
+
+bool ExtensionTask::usersolve() {
+  std::cout << "Enter the E^2-group at (q,s)=(" << q_ << "," << s_ << "):\n";
+  std::string str_grp;
+  std::getline(std::cin,str_grp);
+  std::stringstream input(str_grp);
+  AbelianGroup grp;
+  parse_abelian_group(input, grp, session_.get_sequence().get_prime());
+
+  session_.get_sequence().set_e2(TrigradedIndex(0,q_,s_),grp);
+
+  auto group_it = list_groups_.begin();
+
+  for(; group_it!=list_groups_.end(); group_it++){
+    AbelianGroup coker = session_.get_sequence().get_cokernel(TrigradedIndex(0,q_,s_),group_it->first);
+    deg_t r = group_it->first;
+    std::stringstream filename;
+    filename << "ext_task_" << q_ << "_" << s_ << "_" << group_it->first << ".dat";
+    std::stringstream text;
+    text << "Change the Matrix below to the injective d_"
+         << r
+         <<" from ";
+    group_it->second.print(text, session_.get_sequence().get_prime());
+    text << " into ";
+    coker.print(text, session_.get_sequence().get_prime());
+    text << "\n";
+    session_.matrix_file_dialog(
+            coker.rank(),
+            group_it->second.rank(),
+            filename.str(),
+            text.str());
+    MatrixQ diff = session_.read_matrix_file(coker.rank(), group_it->second.rank(),filename.str());
+    TrigradedIndex pqs(r, q_+1-r, s_-1);
+    MatrixQ proj = session_.get_sequence().get_e_ab(pqs,r, q_-r + 3).maps_to[0];
+    session_.get_sequence().set_diff(pqs, r,diff*proj);
+    list_maps_.emplace(r, diff*proj);
+  }
 }
 
 void ExtensionTask::display_detail() {
@@ -287,6 +329,10 @@ bool DifferentialTask::autosolve()
     return true;
   }
   return false;
+}
+
+bool DifferentialTask::usersolve() {
+  throw std::logic_error("DifferentialTask::usersolve(): not yet implemented.");
 }
 
 void DifferentialTask::display_detail() {

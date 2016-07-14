@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <unistd.h>
 
 #include "parser.h"
 #include "spectral_sequence.h"
@@ -26,6 +27,8 @@ class Session
   MatrixQ get_v_inclusion(deg_t p) const;
   MatrixQ get_r_operations(deg_t source, deg_t target, dim_t index) const;
 
+  void matrix_file_dialog(dim_t width, dim_t height, std::string filename, std::string text);
+  MatrixQ read_matrix_file(dim_t height, dim_t width, std::string filename);
  private:
   void parse_ranks(std::string path, dim_t max_deg);
   void parse_v_inclusions(std::string path, dim_t max_deg);
@@ -47,6 +50,7 @@ class Session
   void display_differential(std::size_t r, std::size_t p, std::size_t q, std::size_t s);
   void interact();
   void display_anss_e2();
+  void solve_task(std::size_t i);
 
   // shell
   SpectralSequence sequence_;

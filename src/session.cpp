@@ -320,7 +320,15 @@ void Session::interact(){
     }
   }
   else if(accept_string(input, "solve ")){
-     //placeholder
+    mpz_class i;
+    eat_whitespace(input);
+    if(parse_mpz_class(input, i)) {
+      eat_whitespace(input);
+      if(input.eof()){
+        solve_task(i.get_ui());
+        return;
+      }
+    }
   }
   else if(accept_string(input, "anss")){
      eat_whitespace(input);
@@ -367,4 +375,45 @@ void Session::display_anss_e2(){
     }
     std::cout << "\n";
   }
+}
+
+void Session::matrix_file_dialog(dim_t width, dim_t height, std::string filename, std::string text) {
+  std::ofstream file;
+  file.open(filename);
+  file << text;
+  file << "\n\n";
+  for(dim_t i = 0; i< height; i++){
+    for(dim_t j = 0; j<width; j++){
+      file << "0";
+      if(j<width-1){
+        file << "  ";
+      }
+    }
+    file << "\n";
+  }
+  file.close();
+
+  execl("sensible-editor", filename.c_str());
+}
+
+MatrixQ Session::read_matrix_file(dim_t height, dim_t width, std::string filename) {
+  std::ifstream file;
+  file.open(filename);
+  find_blank_line(file);
+  MatrixQ matrix;
+  parse_matrix_size(height, width, file, matrix);
+  file.close();
+  return matrix;
+}
+
+void Session::solve_task(std::size_t i) {
+  auto task_it = task_list_.begin();
+  for(std::size_t j=0; j< i; j++){
+    task_it++;
+    if(task_it == task_list_.end()){
+      std::cout << "Index too high.\n";
+      return;
+    }
+  }
+  (*task_it)->usersolve();
 }
