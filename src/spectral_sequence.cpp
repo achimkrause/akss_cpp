@@ -165,8 +165,10 @@ void SpectralSequence::set_diff(TrigradedIndex pqs, dim_t r, MatrixQ matrix)
     } else {
       auto cokers_it = cokernels_.find(target(pqs, r));
       if (cokers_it == cokernels_.end()) {
-        throw std::logic_error(
-            "SpectralSequence::set_diff: Cokernel is not set.");
+        std::stringstream msg;
+        msg << "SpectralSequence::set_diff: Cokernel is not set. (At pqs=(" << pqs.p()<<","<<pqs.q()
+                     <<","<<pqs.s()<<") and r="<<r << "\n";
+        throw std::logic_error(msg.str());
       }
       if (cokers_it->second.get_current() != r) {
         throw std::logic_error(
@@ -202,9 +204,12 @@ void SpectralSequence::set_diff(TrigradedIndex pqs, dim_t r, MatrixQ matrix)
             "SpectralSequence::set_diff: Kernel is at wrong r.");
       }
       auto cokers_it = cokernels_.find(target(pqs, r));
+      std::cerr << target(pqs,r) << "\n";
       if (cokers_it == cokernels_.end()) {
-        throw std::logic_error(
-            "SpectralSequence::set_diff: Cokernel is not set.");
+        std::stringstream msg;
+        msg << "SpectralSequence::set_diff: Cokernel is not set. (At pqs=(" << pqs.p()<<","<<pqs.q()
+        <<","<<pqs.s()<<") and r="<<r << "\n";
+        throw std::logic_error(msg.str());
       }
       if (cokers_it->second.get_current() != r) {
         throw std::logic_error(
@@ -250,8 +255,11 @@ void SpectralSequence::set_diff(TrigradedIndex pqs, dim_t r, MatrixQ matrix)
 std::pair<deg_t, deg_t> SpectralSequence::get_bounds(deg_t q) const
 {
   auto bounds_it = bounds_.find(q);
+  std::stringstream msg;
+
   if (bounds_it == bounds_.end()) {
-    throw std::logic_error("SpectralSequence::get_bounds: Bounds not set.");
+    msg << "SpectralSequence::get_bounds: Bounds not set. (q=" << q << ")\n";
+    throw std::logic_error(msg.str());
   }
   return bounds_it->second;
 }

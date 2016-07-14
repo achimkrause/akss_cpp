@@ -122,15 +122,20 @@ bool ExtensionTask::usersolve() {
   std::string str_grp;
   std::getline(std::cin,str_grp);
   std::stringstream input(str_grp);
+
+  SpectralSequence& sequence = session_.get_sequence();
+
   AbelianGroup grp;
-  parse_abelian_group(input, grp, session_.get_sequence().get_prime());
+  parse_abelian_group(input, grp, sequence.get_prime());
 
-  session_.get_sequence().set_e2(TrigradedIndex(0,q_,s_),grp);
-
+  sequence.set_e2(TrigradedIndex(0,q_,s_),grp);
+  std::cerr << "set_e2: (0," <<q_<<","<<s_<<")\n";
   auto group_it = list_groups_.begin();
 
+  deg_t sequence_r = 2;
+
   for(; group_it!=list_groups_.end(); group_it++){
-    AbelianGroup coker = session_.get_sequence().get_cokernel(TrigradedIndex(0,q_,s_),group_it->first);
+    AbelianGroup coker = sequence.get_cokernel(TrigradedIndex(0,q_,s_),group_it->first);
     deg_t r = group_it->first;
     std::stringstream filename;
     filename << "ext_task_" << q_ << "_" << s_ << "_" << group_it->first << ".dat";
@@ -138,9 +143,9 @@ bool ExtensionTask::usersolve() {
     text << "Change the Matrix below to the injective d_"
          << r
          <<" from ";
-    group_it->second.print(text, session_.get_sequence().get_prime());
+    group_it->second.print(text, sequence.get_prime());
     text << " into ";
-    coker.print(text, session_.get_sequence().get_prime());
+    coker.print(text, sequence.get_prime());
     text << "\n";
     session_.matrix_file_dialog(
             coker.rank(),
@@ -149,10 +154,16 @@ bool ExtensionTask::usersolve() {
             text.str());
     MatrixQ diff = session_.read_matrix_file(coker.rank(), group_it->second.rank(),filename.str());
     TrigradedIndex pqs(r, q_+1-r, s_-1);
-    MatrixQ proj = session_.get_sequence().get_e_ab(pqs,r, q_-r + 3).maps_to[0];
+    MatrixQ proj = sequence.get_e_ab(pqs,r, q_-r + 3).maps_to[0];
+    while(sequence_r < r){
+      sequence.set_diff_zero(source(TrigradedIndex(0, q_, s_), sequence_r), sequence_r);
+      sequence_r++;
+    }
     session_.get_sequence().set_diff(pqs, r,diff*proj);
+    sequence_r++;
     list_maps_.emplace(r, diff*proj);
   }
+  return true;
 }
 
 void ExtensionTask::display_detail() {

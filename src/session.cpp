@@ -392,14 +392,15 @@ void Session::matrix_file_dialog(dim_t width, dim_t height, std::string filename
     file << "\n";
   }
   file.close();
-
-  execl("sensible-editor", filename.c_str());
+  std::string cmd = "sensible-editor "+filename;
+  system(cmd.c_str());
 }
 
 MatrixQ Session::read_matrix_file(dim_t height, dim_t width, std::string filename) {
   std::ifstream file;
   file.open(filename);
   find_blank_line(file);
+  eat_whitespace(file);
   MatrixQ matrix;
   parse_matrix_size(height, width, file, matrix);
   file.close();

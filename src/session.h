@@ -6,7 +6,7 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <unistd.h>
+#include <cstdlib>
 
 #include "parser.h"
 #include "spectral_sequence.h"

@@ -70,31 +70,41 @@ void eat_whitespace(std::istream& str)
   }
 }
 
-bool parse_matrix(std::istream& str, MatrixQ& result)
+bool parse_matrix(std::istream& input, MatrixQ& result)
 {
-  const std::istream::streampos pos = str.tellg();
+  const std::istream::streampos pos = input.tellg();
   mpz_class height;
   mpz_class width;
-  if (!parse_mpz_class(str, height)) {
-    str.seekg(pos);
+  if (!parse_mpz_class(input, height)) {
+    input.seekg(pos);
     return false;
   }
-  eat_whitespace(str);
+  eat_whitespace(input);
 
-  if (!parse_mpz_class(str, width)) {
-    str.seekg(pos);
+  if (!parse_mpz_class(input, width)) {
+    input.seekg(pos);
     return false;
   }
-  eat_whitespace(str);
+  eat_whitespace(input);
 
   if (height < 0 || width < 0) {
     throw std::logic_error("parse_matrix: negative dimensions provided.");
   }
 
-  if(!parse_matrix_size(height.get_ui(), width.get_ui(), str, result)){
-    str.seekg(pos);
-    return false;
+  MatrixQ result_tmp(height.get_ui(), width.get_ui());
+  mpq_class tmp;
+  for (dim_t i = 0; i < height; i++) {
+    for (dim_t j = 0; j < width; j++) {
+      if (!parse_mpq_class(input, tmp)) {
+        input.seekg(pos);
+        return false;
+      }
+      result_tmp(i,j) = tmp;
+      eat_whitespace(input);
+    }
   }
+  result = result_tmp;
+  return true;
 }
 
 bool parse_matrix_size(dim_t height, dim_t width, std::istream& input, MatrixQ& result){
