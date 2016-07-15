@@ -3,8 +3,7 @@
 #include "abelian_group.h"
 #include "p_local.h"
 
-AbelianGroup::AbelianGroup(const dim_t free_rank,
-                           const dim_t tor_rank)
+AbelianGroup::AbelianGroup(const dim_t free_rank, const dim_t tor_rank)
     : free_rank_(free_rank), orders_(tor_rank)
 {
 }
@@ -41,7 +40,8 @@ AbelianGroup::TorsionMatrix<mpq_class> AbelianGroup::torsion_matrix(
   return AbelianGroup::TorsionMatrix<mpq_class>(*this, p);
 }
 
-void AbelianGroup::print(std::ostream& stream, mod_t p){
+void AbelianGroup::print(std::ostream& stream, mod_t p)
+{
   bool plus = false;
   for (dim_t i = 0; i < free_rank(); i++) {
     if (plus) stream << " + ";
@@ -50,13 +50,12 @@ void AbelianGroup::print(std::ostream& stream, mod_t p){
   }
   for (dim_t i = 0; i < tor_rank(); i++) {
     if (plus) stream << " + ";
-    mpz_class order =
-            p_pow_z(p, orders_[i]);
+    mpz_class order = p_pow_z(p, orders_[i]);
     stream << "Z/";
-    stream << order.get_ui();  // unsafe placeholder. FABIAAAAN :(
+    stream << order.get_str(10);
     plus = true;
   }
-  if(!plus){
+  if (!plus) {
     stream << "0";
   }
 }
