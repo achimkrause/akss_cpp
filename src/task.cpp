@@ -129,14 +129,17 @@ bool ExtensionTask::usersolve() {
   parse_abelian_group(input, grp, sequence.get_prime());
 
   sequence.set_e2(TrigradedIndex(0,q_,s_),grp);
-  std::cerr << "set_e2: (0," <<q_<<","<<s_<<")\n";
   auto group_it = list_groups_.begin();
 
-  deg_t sequence_r = 2;
-
+  deg_t coker_r = 2;
   for(; group_it!=list_groups_.end(); group_it++){
-    AbelianGroup coker = sequence.get_cokernel(TrigradedIndex(0,q_,s_),group_it->first);
     deg_t r = group_it->first;
+
+    while(coker_r < r){
+      sequence.set_diff_zero(source(TrigradedIndex(0, q_, s_),coker_r), coker_r);
+      coker_r++;
+    }
+    AbelianGroup coker = sequence.get_cokernel(TrigradedIndex(0,q_,s_),r);
     std::stringstream filename;
     filename << "ext_task_" << q_ << "_" << s_ << "_" << group_it->first << ".dat";
     std::stringstream text;
@@ -147,6 +150,7 @@ bool ExtensionTask::usersolve() {
     text << " into ";
     coker.print(text, sequence.get_prime());
     text << "\n";
+
     session_.matrix_file_dialog(
             coker.rank(),
             group_it->second.rank(),
@@ -155,12 +159,9 @@ bool ExtensionTask::usersolve() {
     MatrixQ diff = session_.read_matrix_file(coker.rank(), group_it->second.rank(),filename.str());
     TrigradedIndex pqs(r, q_+1-r, s_-1);
     MatrixQ proj = sequence.get_e_ab(pqs,r, q_-r + 3).maps_to[0];
-    while(sequence_r < r){
-      sequence.set_diff_zero(source(TrigradedIndex(0, q_, s_), sequence_r), sequence_r);
-      sequence_r++;
-    }
+
     session_.get_sequence().set_diff(pqs, r,diff*proj);
-    sequence_r++;
+    coker_r++;
     list_maps_.emplace(r, diff*proj);
   }
   return true;
@@ -214,9 +215,6 @@ bool DifferentialTask::autosolve()
   // The composition of our big matrix with the projection onto the r-1st
   // cokernel is our representative.
 
-  if(r_ == 6 && index_.p() == 8 && index_.q() == 0 && index_.s() == 0){
-    std::cerr << "break\n";
-  }
 
   SpectralSequence& sequence = session_.get_sequence();
 
@@ -229,7 +227,8 @@ bool DifferentialTask::autosolve()
   AbelianGroup coker_right_codomain =
       sequence.get_cokernel(target(index_, r_), r_);
 
-  if (ker_right_domain.rank() == 0 || coker_right_codomain.rank() == 0) {
+  GroupWithMorphisms e_right_domain = sequence.get_e_ab(index_, r_, index_.q()+2);
+  if (e_right_domain.group.rank() == 0 || coker_right_codomain.rank() == 0) {
     sequence.set_diff_zero(index_, r_);
     return true;
   }
@@ -343,7 +342,31 @@ bool DifferentialTask::autosolve()
 }
 
 bool DifferentialTask::usersolve() {
-  throw std::logic_error("DifferentialTask::usersolve(): not yet implemented.");
+  SpectralSequence& sequence = session_.get_sequence();
+
+  AbelianGroup coker = sequence.get_cokernel(target(index_,r_),r_);
+  GroupWithMorphisms domain = sequence.get_e_ab(index_, r_, index_.q()+2);
+  std::stringstream filename;
+  filename << "diff_task_" << index_.p() << "_" << index_.q() << "_" << index_.s() << "_" << r_ << ".dat";
+  std::stringstream text;
+  text << "Change the Matrix below to the differential d_"
+  << r_
+  <<" from ";
+  domain.group.print(text, sequence.get_prime());
+  text << " at " <<index_
+  <<" to ";
+  coker.print(text, sequence.get_prime());
+  text << " at "<<target(index_,r_) << "\n";
+
+  session_.matrix_file_dialog(
+          coker.rank(),
+          domain.group.rank(),
+          filename.str(),
+          text.str());
+  MatrixQ diff = session_.read_matrix_file(coker.rank(), domain.group.rank(),filename.str());
+  MatrixQ diff_from_ker = diff * domain.maps_to[0];
+  sequence.set_diff(index_, r_, diff_from_ker);
+  return true;
 }
 
 void DifferentialTask::display_detail() {

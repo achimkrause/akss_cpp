@@ -143,11 +143,18 @@ void Session::step()
   sequence_.set_bounds(current_q_ + 1, 1, current_q_ + 1);
 
   // current_q_ is always non-negative
-  for (dim_t r = 2; r <= static_cast<dim_t>(current_q_ + 1); r++) {
-    generate_differential_tasks(r);  // have to do them one page after another
-                                     // here since they depend on each other.
-    autosolve_tasks();
-    user_solve_tasks();
+  for (dim_t q=1; q <= current_q_; q++) {
+    for (dim_t r=2; r <= q+1; r++){
+      dim_t p = 2*static_cast<dim_t>(current_q_ - q);
+
+      generate_differential_tasks_pq_deg(p + r+1, static_cast<dim_t>(q - r + 1), r);
+
+      generate_differential_tasks_pq_deg(p + r +2 , static_cast<dim_t>(q - r + 1), r);
+
+      autosolve_tasks();
+      user_solve_tasks();
+      // have to do them one after another, because they depend on each other.
+    }
   }
 
   generate_extension_tasks();
@@ -159,25 +166,28 @@ void Session::step()
 
 void Session::generate_group_tasks()
 {
-  task_list_.emplace_back(new GroupTask(*this, 1, current_q_));
-  task_list_.emplace_back(new GroupTask(*this, 2, current_q_));
-  if(current_q_ > 0) {
-    task_list_.emplace_back(new GroupTask(*this, 3, current_q_-1));
+  for(deg_t p =1; p<= 2*current_q_+2; p++){
+    task_list_.emplace_back(new GroupTask(*this, p, static_cast<deg_t>(current_q_-(p-1)/2)));
   }
-  for (deg_t p = 4; p <= current_q_ + 3; p++) {
-    task_list_.emplace_back(new GroupTask(*this, p, current_q_ + 3 - p));
-  }
+//  task_list_.emplace_back(new GroupTask(*this, 1, current_q_));
+//  task_list_.emplace_back(new GroupTask(*this, 2, current_q_));
+//  if(current_q_ > 0) {
+//    task_list_.emplace_back(new GroupTask(*this, 3, current_q_-1));
+//  }
+//  for (deg_t p = 4; p <= current_q_ + 3; p++) {
+//    task_list_.emplace_back(new GroupTask(*this, p, current_q_ + 3 - p));
+//  }
 }
 
-void Session::generate_differential_tasks(dim_t r)
-{
-  generate_differential_tasks_pq_deg(r+1, current_q_+1-r, r);
-
-
-  for (deg_t p = 2+r; p<= current_q_ + 3; p++) {
-    generate_differential_tasks_pq_deg(p, current_q_ + 3 - p, r);
-  }
-}
+//void Session::generate_differential_tasks(dim_t r)
+//{
+//  generate_differential_tasks_pq_deg(r+1, current_q_+1-r, r);
+//
+//
+//  for (deg_t p = 2+r; p<= current_q_ + 3; p++) {
+//    generate_differential_tasks_pq_deg(p, current_q_ + 3 - p, r);
+//  }
+//}
 
 //generates differential tasks from (p,q,s) for all s within bounds of source OR target.
 void Session::generate_differential_tasks_pq_deg(dim_t p, dim_t q, dim_t r){
@@ -221,11 +231,9 @@ void Session::autosolve_tasks()
 
 void Session::user_solve_tasks()
 {
-  if(!task_list_.empty()){
+  while(!task_list_.empty()) {
     display_tasks_overview();
     display_command_overview();
-  }
-  while(!task_list_.empty()) {
     interact();
   }
   // call shell dialog with task list, which should eventually return a number
@@ -416,5 +424,7 @@ void Session::solve_task(std::size_t i) {
       return;
     }
   }
-  (*task_it)->usersolve();
+  if((*task_it)->usersolve()){
+    task_list_.erase(task_it);
+  }
 }

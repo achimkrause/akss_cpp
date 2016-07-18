@@ -204,7 +204,6 @@ void SpectralSequence::set_diff(TrigradedIndex pqs, dim_t r, MatrixQ matrix)
             "SpectralSequence::set_diff: Kernel is at wrong r.");
       }
       auto cokers_it = cokernels_.find(target(pqs, r));
-      std::cerr << target(pqs,r) << "\n";
       if (cokers_it == cokernels_.end()) {
         std::stringstream msg;
         msg << "SpectralSequence::set_diff: Cokernel is not set. (At pqs=(" << pqs.p()<<","<<pqs.q()
@@ -418,10 +417,36 @@ AbelianGroup SpectralSequence::get_cokernel(TrigradedIndex pqs, dim_t r) const
     throw std::logic_error(str.str());
   }
   if (cokers_it->second.get_current() < r) {
-    throw std::logic_error(
-        "SpectralSequence::get_cokernel: Cokernel is at wrong r.");
+    std::stringstream str;
+    str << "SpectralSequence::get_cokernel: Cokernel is at wrong r. (p,q,s)="<<pqs<<", r="<<r<<", but is at r="
+        << cokers_it->second.get_current() << "\n";
+    throw std::logic_error(str.str());
   }
   return cokers_it->second.get_group(r);
+}
+
+bool SpectralSequence::ker_is_at_least(TrigradedIndex pqs, dim_t r) {
+  std::pair<deg_t, deg_t> bounds = get_bounds(pqs.q());
+  if (pqs.s() < bounds.first || pqs.s() > bounds.second){
+    return true;
+  }
+  auto kers_it = kernels_.find(pqs);
+  if(kers_it==kernels_.end()){
+    return false;
+  }
+  return (kers_it->second.get_current() >= r);
+}
+
+bool SpectralSequence::coker_is_at_least(TrigradedIndex pqs, dim_t r) {
+  std::pair<deg_t, deg_t> bounds = get_bounds(pqs.q());
+  if (pqs.s() < bounds.first || pqs.s() > bounds.second){
+    return true;
+  }
+  auto cokers_it = cokernels_.find(pqs);
+  if(cokers_it==cokernels_.end()){
+    return false;
+  }
+  return (cokers_it->second.get_current() >= r);
 }
 
 MatrixQ SpectralSequence::get_inclusion(TrigradedIndex pqs, dim_t r) const

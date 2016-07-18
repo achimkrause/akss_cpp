@@ -54,7 +54,7 @@ TEST(SessionInit, TenSteps)
   Session session(2, TEST_DATA_PATH + "ranks.dat",
                   TEST_DATA_PATH + "v_inclusions.dat",
                   TEST_DATA_PATH + "r_operations.dat.",
-                  10);
+                  20);
   for(int i=0; i<9; i++){
     session.step();
   };

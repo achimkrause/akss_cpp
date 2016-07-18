@@ -88,8 +88,10 @@ class SpectralSequence
   mod_t get_prime() const;
   std::pair<deg_t, deg_t> get_bounds(deg_t q) const;
   void set_bounds(deg_t q, deg_t min_s, deg_t max_s);
+  bool ker_is_at_least(TrigradedIndex pqs, dim_t r);
+  bool coker_is_at_least(TrigradedIndex pqs, dim_t r);
 
- private:
+private:
   std::map<TrigradedIndex, GroupSequence> kernels_;
   std::map<TrigradedIndex, GroupSequence> cokernels_;
   std::map<TrigradedIndex, std::map<dim_t, MatrixQ>> differentials_;
